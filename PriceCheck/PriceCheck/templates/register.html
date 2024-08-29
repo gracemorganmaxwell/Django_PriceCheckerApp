@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sign Up</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-
-    <h1>Register</h1>
-    <form method="post">
-     {% csrf_token %}   
-    {{ form.as_p }}
-    <button type="'submit">Register</button>
-
-    </form>
-    
+    <div class="signup-container">
+        <h1>Sign Up</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
+    </div>
 </body>
 </html>
