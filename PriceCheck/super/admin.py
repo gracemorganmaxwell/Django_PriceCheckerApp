@@ -8,7 +8,9 @@ class SuperInline(admin.TabularInline):
     fields=('chain_name')
 
 
+
 # Register your models here.
+
 # @admin.register(SupermarketChain)
 # class SuperAdmin(admin.ModelAdmin):
 #     list_display = ("chain_id", "chain_name")
@@ -89,4 +91,3 @@ class UserStorePrefernaceAdmin(admin.ModelAdmin):
     fieldsets=(
         ("User Store Preferance", {'fields':("user_id", "store_id")}),
     )
-

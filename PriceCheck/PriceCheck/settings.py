@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'PriceCheck.urls'
@@ -141,3 +142,11 @@ INTERNAL_IPS = [
 
 MEDIA_URL='media/'
 MEDIA_ROOT= BASE_DIR / 'media'
+LOGIN_REDIRECT_URL = '/'  
+LOGOUT_REDIRECT_URL = '/' 
+LOGIN_URL = '/login/'  
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'super.backends.EmailOrUsernameBackend',  
+]
