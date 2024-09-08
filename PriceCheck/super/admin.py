@@ -1,21 +1,21 @@
 from django.contrib import admin
-from .models import SupermarketChain, Store, Product, PriceHistory, User, UserStorePreferance
-from django.db import models
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from .models import SupermarketChain, Store, Product, PriceHistory, UserStorePreference, Profile
 
-class SuperInline(admin.TabularInline):
-    model = SupermarketChain
-    extra = 1
-    fields=('chain_name')
+# Define an inline admin descriptor for Profile model
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = 'Profile'
 
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    inlines = (ProfileInline,)
 
-
-# Register your models here.
-
-# @admin.register(SupermarketChain)
-# class SuperAdmin(admin.ModelAdmin):
-#     list_display = ("chain_id", "chain_name")
-
-# admin.site.register(models.SupermarketChain)
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 
 @admin.register(SupermarketChain)
 class SuperAdmin(admin.ModelAdmin):
@@ -23,71 +23,52 @@ class SuperAdmin(admin.ModelAdmin):
     list_filter = ("chain_name",)
     search_fields = ["chain_name"]
     list_editable = ('chain_name',)
+
     class Meta:
         ordering = ["chain_name",]
-    fieldsets=(
-        ("Name of Supermarket Chain", {'fields':("chain_name",)}),
-    )
 
-@admin.register(Store)
-class StoreAdmin(admin.ModelAdmin):
-    list_display = ("store_id", 'store_name', 'store_adress','store_region', 'chain_id') 
-    list_filter = ("store_name", "store_region")
-    search_fields = ["store_name", "store_region"]
-    class Meta:
-        ordering = ["store_name",]
-    fieldsets=(
-        ("Store location", {'fields':("store_name", "store_region")}),
+    fieldsets = (
+        ("Name of Supermarket Chain", {'fields': ("chain_name",)}),
     )
-  
-
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'product_name', 'unit_type', 'store_id', 'product_code', 'unit_price')   
+    list_display = ("product_id", 'product_name', 'unit_type', 'store_id', 'product_code', 'unit_price')
     list_filter = ("product_name", "product_code")
-    search_fields = ["product_name", "prodcut_code"]
+    search_fields = ["product_name", "product_code"]
+
     class Meta:
         ordering = ["product_name", "product_code",]
-    fieldsets=(
-        ("Product", {'fields':("product_name", "product_code")}),
-    )
 
+    fieldsets = (
+        ("Product", {'fields': ("product_name", "product_code", "unit_type", "store_id", "unit_price", "on_sale")}),
+    )
 
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'date','price', 'on_sale')   
+    list_display = ("product_id", 'date', 'price', 'on_sale')
     list_filter = ("product_id", "price")
     search_fields = ["product_id", "price", 'on_sale',]
+
     class Meta:
         ordering = ["product_id", "price",]
-    def on_sale(self, obj):
-        return "Yes"
 
-    fieldsets=(
-        ("Price History", {'fields':("product_id", "price")}),
+    fieldsets = (
+        ("Price History", {'fields': ("product_id", "price", "on_sale")}),
     )
 
+@admin.register(UserStorePreference)
+class UserStorePreferenceAdmin(admin.ModelAdmin):
+    list_display = ("USP_id", "user", 'store')
+    list_filter = ("user", "store")
+    search_fields = ["user__username", "store__store_name"]
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ("user_name","user_user_name", 'user_email','user_type') 
-    list_filter = ("user_name", "user_user_name", "user_type")
-    search_fields = ["user_name", "user_username", "user_type",]
     class Meta:
-        ordering = ["user_name", "user_type",]
-    fieldsets=(
-        ("Users", {'fields':("user_name", "user_type")}),
-    )
-  
+        ordering = ["user", "store",]
 
-@admin.register(UserStorePreferance)
-class UserStorePrefernaceAdmin(admin.ModelAdmin):
-    list_display = ("USP_id","user_id", 'store_id')   
-    list_filter = ("user_id", "store_id")
-    search_fields = ["user_id", "store_id"]
-    class Meta:
-        ordering = ["user_id", "store_id",]
-    fieldsets=(
-        ("User Store Preferance", {'fields':("user_id", "store_id")}),
+    fieldsets = (
+        ("User Store Preference", {'fields': ("user", "store")}),
     )
+
+# Register Store model if it's not already registered
+admin.site.register(Store)
