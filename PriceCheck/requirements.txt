@@ -1,17 +1,15 @@
 asgiref==3.8.1
+cffi==1.17.0
+cryptography==43.0.0
 Django==5.1
 django-browser-reload==1.15.0
 django-debug-toolbar==4.4.6
 django-tailwind==3.8.0
 pillow==10.4.0
-sqlparse==0.5.1
-tzdata==2024.1
-python-dotenv==1.0.0
-cffi==1.17.0
-cryptography==43.0.0
 pycparser==2.22
+PyMySQL==1.1.1
+python-dotenv==1.0.0
 pywatchman==2.0.0
-wheel @ file:///opt/homebrew/Cellar/python%403.12/3.12.5/libexec/wheel-0.44.0-py3-none-any.whl#sha256=8d8a590e50bda8422000110e90bc730ebfcd8363d2de80793ac819b7f252e97d
-Django==5.1
-mysqlclient==2.2.0
-
+sqlparse==0.5.1
+typing_extensions==4.12.2
+tzdata==2024.1
