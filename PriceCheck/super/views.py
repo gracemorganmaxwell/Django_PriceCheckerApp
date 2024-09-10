@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import SupermarketChain, Store, Product, PriceHistory, Profile, UserStorePreference
+from django.db.models import Q
+
 
 
 
@@ -135,8 +137,38 @@ class StoreDeleteView(DeleteView):
 #Product Views
 # List all Products
 class ProductListView(ListView):
+    # model = Product
+    # template_name = 'super/product_list.html'
+    # class ProductListView(ListView):
     model = Product
-    template_name = 'super/product_list.html'
+    template_name = 'product_list.html'
+    context_object_name = 'product_list'
+    paginate_by = 10  # If you want pagination, otherwise remove this
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        product_source = self.request.GET.get('source')
+
+        # Filter products based on search query
+        if query:
+            queryset = queryset.filter(
+                Q(product_name__icontains=query) |
+                Q(product_category__icontains=query)
+            )
+
+        # Filter products based on the selected source
+        if product_source:
+            queryset = queryset.filter(product_source_site=product_source)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')  # Pass query to template
+        context['product_source'] = self.request.GET.get('source', '')  # Pass product source to template
+        context['distinct_sources'] = Product.objects.values_list('product_source_site', flat=True).distinct()
+        return context
 
 # View details of a Product
 class ProductDetailView(DetailView):
