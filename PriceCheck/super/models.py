@@ -48,13 +48,18 @@ class Store(models.Model):
 
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
-    product_name = models.CharField(max_length=25)
+    product_name = models.CharField(max_length=100)
+    product_size = models.CharField(max_length=10)
     product_image = models.ImageField(upload_to='products/', null=True, blank=True)
+    product_category = models.CharField(max_length=100)
+    product_source_site = models.TextField()
     unit_type = models.CharField(max_length=10)
-    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     product_code = models.CharField(max_length=10, unique=True)
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     on_sale = models.BooleanField(null=True, default=None)
+    last_updated = models.DateField(auto_now=True)
+    last_checked = models.DateField(auto_now=True)
+    original_unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
 
     def __str__(self):
         return str(self.product_name) + ": $" + str(self.unit_price)
@@ -67,6 +72,7 @@ class PriceHistory(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(auto_now_add=True)
     on_sale = models.BooleanField(null=True, default=None)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.product_id) + ": $" + str(self.price)

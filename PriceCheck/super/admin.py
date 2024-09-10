@@ -33,7 +33,7 @@ class SuperAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'product_name', 'unit_type', 'store_id', 'product_code', 'unit_price')
+    list_display = ("product_id", 'product_name', 'unit_type', 'product_code', 'unit_price')
     list_filter = ("product_name", "product_code")
     search_fields = ["product_name", "product_code"]
 
@@ -41,14 +41,14 @@ class ProductAdmin(admin.ModelAdmin):
         ordering = ["product_name", "product_code",]
 
     fieldsets = (
-        ("Product", {'fields': ("product_name", "product_code", "unit_type", "store_id", "unit_price", "on_sale")}),
+        ("Product", {'fields': ("product_name", "product_code", "unit_type", "unit_price", "on_sale")}),
     )
 
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'date', 'price', 'on_sale')
+    list_display = ("product_id", 'date', 'price', 'on_sale', 'store_id')
     list_filter = ("product_id", "price")
-    search_fields = ["product_id", "price", 'on_sale',]
+    search_fields = ["product_id", "price", 'on_sale','store_id']
 
     class Meta:
         ordering = ["product_id", "price",]
