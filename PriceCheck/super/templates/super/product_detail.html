@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.product_name }}{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-4">{{ object.product_name }}</h2>
+        <a href="{% url 'product-update' object.pk %}" class="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600">Edit Product</a>
+        <a href="{% url 'product-delete' object.pk %}" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Delete Product</a>
+        <a href="{% url 'product-list' %}" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to List</a>
+    </div>
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">{{ product.product_name }}</h1>
+    
+        <div class="flex space-x-4">
+            <!-- Product Image -->
+            <div class="flex-shrink-0">
+                <img src="{{ product.product_image }}" alt="{{ product.product_name }}" class="w-64 h-64 object-cover rounded">
+            </div>
+            
+            <!-- Product Details -->
+            <div>
+                <h1>{{ product.product_name }}</h1>
+                <p>Category: {{ product.product_category }}</p>
+                <p>Size: {{ product.product_size }}</p>
+                <p>Price: ${{ product.unit_price }}</p>
+                <p>On Sale: {{ product.on_sale|yesno:"Yes,No" }}</p>
+                <p>Source: {{ product.product_source_site }}</p>
+                <p>Last Checked: {{ product.last_checked }}</p>
+                <p>Original Unit Quantity: {{ product.original_unit_quantity }} {{ product.unit_type }}</p>
+                <!-- <p><strong>Product Code:</strong> {{ product.product_id }}</p>
+                <p><strong>Unit Price:</strong> ${{ product.product_name }}</p>
+                <p><strong>Unit Type:</strong> {{ product.unit_category }}</p>
+                <p><strong>Store:</strong> {{ product.product_source_site }}</p>
+                <p><strong>Address:</strong> {{ product.unit_price }}</p> -->
+                <!-- <p><strong>Region:</strong> {{ product.store.store_region }}</p> -->
+                <!-- <p><strong>On Sale:</strong> {% if product.on_sale %}Yes{% else %}No{% endif %}</p> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-4">{{ object.product_name }}</h2>
+        <div class="mb-4">
+            <img src="{{ object.product_image }}" alt="{{ object.product_name }}" class="w-64 h-64 object-cover">
+        </div>
+        <p><strong>Unit Type:</strong> {{ object.unit_type }}</p>
+        <p><strong>Product Code:</strong> {{ object.product_code }}</p>
+        <p><strong>Current Price:</strong> ${{ object.unit_price }}</p>
+        <p><strong>On Sale:</strong> {{ object.on_sale }}</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-4">Price History</h3>
+        <canvas id="priceChart" width="400" height="200"></canvas>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            console.log('Script Loaded');  // Verify if script is running
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            console.log(priceHistory);
+            
+            const labels = priceHistory.map(entry => entry.date);
+            const prices = priceHistory.map(entry => entry.price);
+    
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Price Over Time',
+                        data: prices,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Price: $${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            },
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price ($)'
+                            },
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+    
+{% endblock %}

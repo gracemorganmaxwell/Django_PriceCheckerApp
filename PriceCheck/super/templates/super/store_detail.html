@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.store_name }}{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-4">{{ object.store_name }}</h2>
+        <a href="{% url 'store-update' object.pk %}" class="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600">Edit Store</a>
+        <a href="{% url 'store-delete' object.pk %}" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Delete Store</a>
+        <a href="{% url 'store-list' %}" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to List</a>
+    </div>
+    
+{% endblock %}
