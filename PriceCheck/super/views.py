@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
@@ -121,3 +121,8 @@ def product_list_view(request):
         'favorite_products': favorite_products
     }
     return render(request, 'super/product_list.html', context)
+
+    
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'super/product_detail.html', {'product': product})

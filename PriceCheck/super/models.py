@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.shortcuts import render, get_object_or_404
 
 
 class SupermarketChain(models.Model):
@@ -115,3 +116,5 @@ class FavoriteProduct(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s favorite products: {self.product.product_name}"
+
+
