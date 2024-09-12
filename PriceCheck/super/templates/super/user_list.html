@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-4">Users</h2>
+        <a href="{% url 'user-create' %}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add New User</a>
+        <ul class="mt-4">
+            {% for user in object_list %}
+                <li class="mb-2">
+                    <a href="{% url 'user-detail' user.pk %}" class="text-blue-500 hover:underline">{{ user.user_name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

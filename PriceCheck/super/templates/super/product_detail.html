@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block content %}
     <h2 class="text-3xl font-bold mb-4">{{ object.product_name }}</h2>
     <a href="{% url 'product_list' %}" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to Product List</a>
@@ -32,5 +33,6 @@
         </div>
     </div>
 </div>
+
 
 {% endblock %}

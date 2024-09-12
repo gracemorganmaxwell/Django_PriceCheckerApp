@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}User Store Preferences{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-4">User Store Preferences</h2>
+        <a href="{% url 'userstorepreferance-create' %}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add New Preference</a>
+        <ul class="mt-4">
+            {% for preference in object_list %}
+                <li class="mb-2">
+                    <a href="{% url 'userstorepreferance-detail' preference.pk %}" class="text-blue-500 hover:underline">{{ preference.user_id }} - {{ preference.store_id }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -7,6 +7,7 @@ from .forms import EmailOrUsernameLoginForm
 from . import views
 
 
+
 urlpatterns = [
    path('signup/', register_view, name='signup' ),
     path('', HomePageView.as_view(), name='home'),

@@ -51,6 +51,7 @@ def register_view(request):
     return render(request, 'register.html', {'form': form})
 
 
+
 def placeholder_view(request):
     return HttpResponse("Store preference feature coming soon!")
 
@@ -126,3 +127,4 @@ def product_list_view(request):
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     return render(request, 'super/product_detail.html', {'product': product})
+
