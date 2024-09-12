@@ -107,7 +107,7 @@ class UserStorePreference(models.Model):
     def get_absolute_url(self):
         return reverse("user_store_preference_detail", kwargs={"USP_id": self.pk})
 
-# Make sure all other models (SupermarketChain, Store, Product, etc.) are defined here
+
 
 class FavoriteProduct(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

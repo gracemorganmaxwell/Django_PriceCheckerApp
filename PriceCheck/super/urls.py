@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import register_view 
 from django.contrib.auth import views as auth_views
-from .views import HomePageView, store_preference_view
+from .views import HomePageView, store_preference_view, product_list_view
 from .forms import EmailOrUsernameLoginForm
 from . import views
 
@@ -13,5 +13,5 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(authentication_form=EmailOrUsernameLoginForm), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('store-preference/', store_preference_view, name='store_preference'),
-
+    path('products/', product_list_view, name='product_list'),
 ]

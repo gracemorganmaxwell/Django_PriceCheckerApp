@@ -4,11 +4,11 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store, FavoriteProduct
+from .models import UserStorePreference, Store, FavoriteProduct, Product
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
-
+#Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = 'super/home.html'
     login_url = '/login/'
@@ -31,7 +31,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
 
 
-
+#sign up view
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -54,7 +54,7 @@ def placeholder_view(request):
     return HttpResponse("Store preference feature coming soon!")
 
 
-
+#store preference view
 @login_required
 def store_preference_view(request):
     store_preferences = UserStorePreference.objects.filter(user=request.user)
@@ -74,4 +74,23 @@ def store_preference_view(request):
     }
     return render(request, 'super/store_preference.html', context)
 
+#product list view
+def product_list_view(request):
+   
+    categories = Product.objects.values_list('product_category', flat=True).distinct()
 
+    
+    selected_category = request.GET.get('category', '')
+
+   
+    if selected_category:
+        products = Product.objects.filter(product_category=selected_category)
+    else:
+        products = Product.objects.all()  
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'selected_category': selected_category  
+    }
+    return render(request, 'super/product_list.html', context)
