@@ -4,22 +4,28 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store
+from .models import UserStorePreference, Store, FavoriteProduct
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = 'super/home.html'
-    login_url = '/login/'  
-    redirect_field_name = 'next'  
+    login_url = '/login/'
+    redirect_field_name = 'next'
 
-            #  Gets users store preference
+        # get users preferences
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:  
+        if self.request.user.is_authenticated:
+            
             store_preferences = UserStorePreference.objects.filter(user=self.request.user)
             context['store_preferences'] = store_preferences
+            
+            
+            favorite_products = FavoriteProduct.objects.filter(user=self.request.user)
+            context['favorite_products'] = favorite_products
+
         return context
 
 
@@ -66,6 +72,6 @@ def store_preference_view(request):
         'store_preferences' : store_preferences,
         'stores' : stores
     }
-    return render(request, 'store_preference.html', context)
+    return render(request, 'super/store_preference.html', context)
 
 

@@ -108,3 +108,10 @@ class UserStorePreference(models.Model):
         return reverse("user_store_preference_detail", kwargs={"USP_id": self.pk})
 
 # Make sure all other models (SupermarketChain, Store, Product, etc.) are defined here
+
+class FavoriteProduct(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username}'s favorite products: {self.product.product_name}"
