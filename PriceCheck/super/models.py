@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.shortcuts import render, get_object_or_404
 
 
 class SupermarketChain(models.Model):
@@ -108,4 +109,13 @@ class UserStorePreference(models.Model):
     def get_absolute_url(self):
         return reverse("user_store_preference_detail", kwargs={"USP_id": self.pk})
 
-# Make sure all other models (SupermarketChain, Store, Product, etc.) are defined here
+
+
+class FavoriteProduct(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username}'s favorite products: {self.product.product_name}"
+
+

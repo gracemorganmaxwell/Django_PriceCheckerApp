@@ -71,7 +71,7 @@ ROOT_URLCONF = 'PriceCheck.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'PriceCheck' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

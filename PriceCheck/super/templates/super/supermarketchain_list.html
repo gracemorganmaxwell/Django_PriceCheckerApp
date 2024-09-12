@@ -15,3 +15,14 @@
         </ul>
     </div>
 {% endblock %}
+
+
+{% for product in product_list %}
+                    <li class="mb-2">
+                        <a href="{% url 'product-detail' product.pk %}" class="text-blue-500 hover:underline">
+                            {{ product.product_name }}
+                        </a>
+                        <p> {{ product.product_source_site }}</p>
+                    </li>
+                {% endfor %}
+

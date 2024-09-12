@@ -24,7 +24,6 @@ urlpatterns = [
     path('',include('super.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/', include('super.urls')),
-    # path('super/', include('super.urls')),  # Include the URLs from the 'market' app
 
    
     ]
