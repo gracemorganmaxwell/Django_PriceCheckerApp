@@ -1,36 +1,69 @@
-{% load static tailwind_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-    <title>Price History</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<title>{% block title %}My App{% endblock %}</title>
-		<link href="https://cdn.jsdelivr.net/npm/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet">
-	
-		{% tailwind_css %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceCheck</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-600 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                
+                <div class="text-white text-3xl font-bold">
+                    <a href="{% url 'home' %}" class="hover:text-gray-200 transition duration-300">
+                        PriceCheck
+                    </a>
+                </div>
 
+             
+                <ul class="flex space-x-8 text-white text-lg font-medium">
+                    <li>
+                        <a href="{% url 'home' %}" class="hover:text-gray-200 transition duration-300">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'store_preference' %}" class="hover:text-gray-200 transition duration-300">
+                            Store Preferences
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'product_list' %}" class="hover:text-gray-200 transition duration-300">
+                            Products
+                        </a>
+                    </li>
+                </ul>
 
-	</head>
+                <!-- log in/out button -->
+                <div class="flex space-x-6 text-white text-lg">
+                    {% if user.is_authenticated %}
+                      
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="hover:text-gray-200 transition duration-300">
+                                Log Out
+                            </button>
+                        </form>
+                    {% else %}
+                     
+                        <a href="{% url 'login' %}" class="hover:text-gray-200 transition duration-300">
+                            Log In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
 
-	<body class="bg-gray-50 font-serif leading-normal tracking-normal">
-		<nav class="bg-gray-800 p-4">
-			<div class="container mx-auto flex justify-between">
-				<a href="{% url 'home' %}" class="text-white hover:text-gray-400">Home</a>
-				<a href="{% url 'supermarket-chain-list' %}" class="text-white hover:text-gray-400">Supermarket Chains</a>
-				<a href="{% url 'store-list' %}" class="text-white hover:text-gray-400">Stores</a>
-				<a href="{% url 'product-list' %}" class="text-white hover:text-gray-400">Products</a>
-				<a href="{% url 'pricehistory-list' %}" class="text-white hover:text-gray-400">Price History</a>
-				<a href="{% url 'user-list' %}" class="text-white hover:text-gray-400">Users</a>
-				<a href="{% url 'userstorepreferance-list' %}" class="text-white hover:text-gray-400">User Preferences</a>
-	
-			</div>
-		</nav>
-	
-		<main class="container mx-auto py-8">
-			{% block content %}
-			{% endblock %}
-	
-		</body>
+ 
+    <div class="container mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
 </html>

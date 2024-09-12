@@ -1,24 +1,38 @@
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import TemplateView, DetailView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
+from .models import UserStorePreference, Store, FavoriteProduct, Product
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import SupermarketChain, Store, Product, PriceHistory, Profile, UserStorePreference
-from django.db.models import Q
 
-
-
-
-
+#Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = 'super/home.html'
-    login_url = '/login/'  
-    redirect_field_name = 'next'  
+    login_url = '/login/'
+    redirect_field_name = 'next'
 
+        # get users preferences
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            
+            store_preferences = UserStorePreference.objects.filter(user=self.request.user)
+            context['store_preferences'] = store_preferences
+            
+            
+            favorite_products = FavoriteProduct.objects.filter(user=self.request.user)
+            context['favorite_products'] = favorite_products
+
+        return context
+
+
+
+
+#sign up view
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -36,279 +50,81 @@ def register_view(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
-#SupermarketChain Views
-# List all SupermarketChains
-class SupermarketChainListView(ListView):
-    model = SupermarketChain
-    template_name = 'super/supermarketchain_list.html'
 
-# View details of a SupermarketChain
-class SupermarketChainDetailView(DetailView):
-    model = SupermarketChain
-    template_name = 'super/supermarketchain_detail.html'
 
-# Create a new SupermarketChain
-class SupermarketChainCreateView(CreateView):
-    model = SupermarketChain
-    fields = ['chain_name']
-    template_name = 'super/supermarketchain_form.html'
+def placeholder_view(request):
+    return HttpResponse("Store preference feature coming soon!")
 
-# Update an existing SupermarketChain
-class SupermarketChainUpdateView(UpdateView):
-    model = SupermarketChain
-    fields = ['chain_name']
-    template_name = 'super/supermarketchain_form.html'
 
-# Delete a SupermarketChain
-class SupermarketChainDeleteView(DeleteView):
-    model = SupermarketChain
-    template_name = 'super/supermarketchain_confirm_delete.html'
-    success_url = reverse_lazy('supermarket-chain-list')
+#store preference view
+@login_required
+def store_preference_view(request):
+    store_preferences = UserStorePreference.objects.filter(user=request.user)
+    
+    stores = Store.objects.all()
 
-#Store Views
-# List all Stores
-class StoreListView(ListView):
-    model = Store
-    template_name = 'super/store_list.html'
-    context_object_name = 'stores'
+    if request.method == 'POST':
+        store_id = request.POST.get('store')
+        store = Store.objects.get(id=store_id)
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        query = self.request.GET.get('q')
-        region = self.request.GET.get('region')
-        
-        if query:
-            queryset = queryset.filter(
-                Q(store_name__icontains=query) |
-                Q(store_address__icontains=query)
-            )
-        
-        if region:
-            queryset = queryset.filter(store_region__icontains=region)
-        
-        return queryset
+        UserStorePreference.objects.create(user=request.user, store=store)
+        return redirect('store_preference')
+    
+    context = {
+        'store_preferences' : store_preferences,
+        'stores' : stores
+    }
+    return render(request, 'super/store_preference.html', context)
 
-class StoreListView(ListView):
-    model = Store
-    template_name = 'super/store_list.html'
-    context_object_name = 'stores'
+#product list view
+@login_required
+def product_list_view(request):
+    
+    categories = Product.objects.values_list('product_category', flat=True).distinct()
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        query = self.request.GET.get('q')
-        region = self.request.GET.get('region')
-        
-        if query:
-            queryset = queryset.filter(
-                Q(store_name__icontains=query) |
-                Q(store_address__icontains=query)
-            )
-        
-        if region:
-            queryset = queryset.filter(store_region__icontains=region)
-        
-        return queryset
+   
+    query = request.GET.get('q', '')  
+    selected_category = request.GET.get('category', '') 
 
     
+    products = Product.objects.all()
 
-# View details of a Store
-class StoreDetailView(DetailView):
-    model = Store
-    template_name = 'super/store_detail.html'
-
-# Create a new Store
-class StoreCreateView(CreateView):
-    model = Store
-    fields = ['store_name', 'store_address', 'store_region', 'chain']
-    template_name = 'super/store_form.html'
-
-# Update an existing Store
-class StoreUpdateView(UpdateView):
-    model = Store
-    fields = ['store_name', 'store_address', 'store_region', 'chain']
-    template_name = 'super/store_form.html'
-
-# Delete a Store
-class StoreDeleteView(DeleteView):
-    model = Store
-    template_name = 'super/store_confirm_delete.html'
-    success_url = reverse_lazy('store-list')
-
-#Product Views
-# List all Products
-class ProductListView(ListView):
-    # model = Product
-    # template_name = 'super/product_list.html'
-    # class ProductListView(ListView):
-    model = Product
-    template_name = 'product_list.html'
-    context_object_name = 'product_list'
-    paginate_by = 10  # If you want pagination, otherwise remove this
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        query = self.request.GET.get('q')
-        product_source = self.request.GET.get('source')
-
-        # Filter products based on search query
-        if query:
-            queryset = queryset.filter(
-                Q(product_name__icontains=query) |
-                Q(product_category__icontains=query)
-            )
-
-        # Filter products based on the selected source
-        if product_source:
-            queryset = queryset.filter(product_source_site=product_source)
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('q', '')  # Pass query to template
-        context['product_source'] = self.request.GET.get('source', '')  # Pass product source to template
-        context['distinct_sources'] = Product.objects.values_list('product_source_site', flat=True).distinct()
-        return context
-
-# View details of a Product
-class ProductDetailView(DetailView):
-    model = Product
-    template_name = 'super/product_detail.html'
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        product = self.get_object()
-        context['price_history'] = PriceHistory.objects.filter(product=product).order_by('date')
-        return context
+    if query:
+        products = products.filter(product_name__icontains=query)
+
+   
+    if selected_category:
+        products = products.filter(product_category=selected_category)
+
+  
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+
+        if product_id and product_id.isdigit():
+            product = get_object_or_404(Product, product_id=product_id)
+
+         
+            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+            if not created:
+                favorite.delete()
+
+        return redirect('product_list')
+
+   
+    favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'selected_category': selected_category,
+        'query': query,  
+        'favorite_products': favorite_products
+    }
+    return render(request, 'super/product_list.html', context)
+
     
-# Create a new Product
-class ProductCreateView(CreateView):
-    model = Product
-    fields = ['product_name', 'product_image', 'unit_type', 'store', 'product_code', 'unit_price', 'on_sale']
-    template_name = 'super/product_form.html'
-
-# Update an existing Product
-class ProductUpdateView(UpdateView):
-    model = Product
-    fields = ['product_name', 'product_image', 'unit_type', 'store', 'product_code', 'unit_price', 'on_sale']
-    template_name = 'super/product_form.html'
-
-# Delete a Product
-class ProductDeleteView(DeleteView):
-    model = Product
-    template_name = 'super/product_confirm_delete.html'
-    success_url = reverse_lazy('product-list')
-
-#PriceHistory Views
-# List all PriceHistory records
-class PriceHistoryListView(ListView):
-    model = PriceHistory
-    template_name = 'super/pricehistory_list.html'
-    context_object_name = 'object_list'
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        product_name = self.request.GET.get('product_name')
-        min_price = self.request.GET.get('min_price')
-        max_price = self.request.GET.get('max_price')
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-
-        if product_name:
-            queryset = queryset.filter(product__product_name__icontains=product_name)
-        if min_price:
-            queryset = queryset.filter(price__gte=min_price)
-        if max_price:
-            queryset = queryset.filter(price__lte=max_price)
-        if start_date and end_date:
-            queryset = queryset.filter(date__range=[start_date, end_date])
-
-        return queryset
-    
-    
-
-class PriceHistoryDetailView(DetailView):
-    model = PriceHistory
-    template_name = 'super/pricehistory_detail.html'
-
-# View details of a PriceHistory record
-class PriceHistoryDetailView(DetailView):
-    model = PriceHistory
-    template_name = 'super/pricehistory_detail.html'
-
-# Create a new PriceHistory record
-class PriceHistoryCreateView(CreateView):
-    model = PriceHistory
-    fields = ['product', 'price', 'on_sale']
-    template_name = 'super/pricehistory_form.html'
-
-# Update an existing PriceHistory record
-class PriceHistoryUpdateView(UpdateView):
-    model = PriceHistory
-    fields = ['product', 'price', 'on_sale']
-    template_name = 'super/pricehistory_form.html'
-
-# Delete a PriceHistory record
-class PriceHistoryDeleteView(DeleteView):
-    model = PriceHistory
-    template_name = 'super/pricehistory_confirm_delete.html'
-    success_url = reverse_lazy('pricehistory-list')
-
-#User views
-# List all Users
-class UserListView(ListView):
-    model = Profile
-    template_name = 'super/user_list.html'
-
-# View details of a User
-class UserDetailView(DetailView):
-    model = Profile
-    template_name = 'super/user_detail.html'
-
-# Create a new User
-class UserCreateView(CreateView):
-    model = Profile
-    fields = ['name', 'username', 'password', 'email', 'user_type']
-    template_name = 'super/user_form.html'
-
-# Update an existing User
-class UserUpdateView(UpdateView):
-    model = Profile
-    fields = ['name', 'username', 'password', 'email', 'user_type']
-    template_name = 'super/user_form.html'
-
-# Delete a User
-class UserDeleteView(DeleteView):
-    model = Profile
-    template_name = 'super/user_confirm_delete.html'
-    success_url = reverse_lazy('user-list')
-
-#UserStorePreference views
-# List all UserStorePreferences
-class UserStorePreferenceListView(ListView):
-    model = UserStorePreference
-    template_name = 'super/userstorepreferance_list.html'
-
-# View details of a UserStorePreference
-class UserStorePreferenceDetailView(DetailView):
-    model = UserStorePreference
-    template_name = 'super/userstorepreferance_detail.html'
-
-# Create a new UserStorePreference
-class UserStorePreferenceCreateView(CreateView):
-    model = UserStorePreference
-    fields = ['user', 'store']
-    template_name = 'super/userstorepreferance_form.html'
-
-# Update an existing UserStorePreference
-class UserStorePreferenceUpdateView(UpdateView):
-    model = UserStorePreference
-    fields = ['user', 'store']
-    template_name = 'super/userstorepreferance_form.html'
-
-# Delete a UserStorePreference
-class UserStorePreferenceDeleteView(DeleteView):
-    model = UserStorePreference
-    template_name = 'super/userstorepreferance_confirm_delete.html'
-    success_url = reverse_lazy('userstorepreferance-list')
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'super/product_detail.html', {'product': product})
 
