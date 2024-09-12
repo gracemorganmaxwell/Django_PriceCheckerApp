@@ -3,8 +3,20 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Product List</h1>
 
-<!-- drop down menu for categories -->
+<!-- Category dropdown menu and Search bar -->
 <form method="GET" action="{% url 'product_list' %}" class="mb-4">
+    <!-- Search by product name -->
+    <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
+    <input 
+        type="text" 
+        id="search" 
+        name="q" 
+        value="{{ query }}" 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" 
+        placeholder="Enter product name..."
+    />
+
+    <!-- Category dropdown -->
     <label for="category" class="block text-lg mb-2">Select a Category:</label>
     <select 
         id="category" 
@@ -18,18 +30,18 @@
             </option>
         {% endfor %}
     </select>
+    
+    <!-- Search button -->
     <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         Search
     </button>
 </form>
 
-<!-- product cards -->
+<!-- Product cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
     {% for product in products %}
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out">
+    <div class="relative bg-white shadow-lg rounded-lg overflow-hidden flex flex-col justify-between">
         <div class="relative h-48">
-            
-
             {% if product.product_image %}
                 <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-full w-full object-cover">
             {% else %}
@@ -38,22 +50,33 @@
                 </div>
             {% endif %}
         </div>
-        <div class="p-6">
+        <div class="p-6 flex-grow">
             <h2 class="text-xl font-bold mb-2 text-gray-900">{{ product.product_name }}</h2>
             <p class="text-gray-700 mb-2"><strong>Category:</strong> {{ product.product_category }}</p>
-            <p class="text-gray-700 mb-2"><strong>Size:</strong> {{ product.product_size }}</p>
             <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ product.unit_price }}</p>
-            <p class="text-gray-700 mb-2">
-                <strong>On Sale:</strong> 
-                {% if product.on_sale %}
-                    <span class="text-green-500 font-semibold">Yes</span>
-                {% else %}
-                    <span class="text-red-500 font-semibold">No</span>
-                {% endif %}
-            </p>
-           
         </div>
+
+        <!-- Favorite product Button -->
+        <form method="POST" action="{% url 'product_list' %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+            
+            <button type="submit" class="absolute bottom-4 right-4 focus:outline-none">
+                {% if product.product_id in favorite_products %}
+                  <!-- red heart for favorite item -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                {% else %}
+                    <!-- clear heart -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z" />
+                    </svg>
+                {% endif %}
+            </button>
+        </form>
     </div>
     {% endfor %}
 </div>
+
 {% endblock %}

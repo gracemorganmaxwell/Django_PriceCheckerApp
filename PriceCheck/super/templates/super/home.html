@@ -1,72 +1,78 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Homepage</h1>
 
-<!-- Flex container to hold both tables -->
-<div class="flex space-x-8">
+<div class="container mx-auto my-8">
     
-    <!-- Store Preferences Table -->
-    <div class="w-1/2">
-        <h2 class="text-xl font-semibold mb-2">Your Store Preferences</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-blue-500 text-left rounded-lg shadow-lg">
-                <thead class="bg-blue-700 text-white">
-                    <tr>
-                        <th class="py-2 px-4">Store Name</th>
-                        <th class="py-2 px-4">Address</th>
-                        <th class="py-2 px-4">Region</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if store_preferences %}
-                        {% for preference in store_preferences %}
-                        <tr class="bg-blue-300 border-b border-gray-300">
-                            <td class="py-2 px-4">{{ preference.store.store_name }}</td>
-                            <td class="py-2 px-4">{{ preference.store.store_address }}</td>
-                            <td class="py-2 px-4">{{ preference.store.store_region }}</td>
+    <h2 class="text-lg font-medium text-gray-700 text-center mb-2">
+        Welcome, {{ user.username }}!
+    </h2>
+
+    <h1 class="text-3xl font-bold mb-8 text-gray-800 text-center">Your Dashboard</h1>
+
+    <div class="flex space-x-8">
+        <!-- store preference table--> 
+        <div class="w-1/2 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">Your Store Preferences</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-blue-100 rounded-lg">
+                    <thead class="bg-blue-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Store Name</th>
+                            <th class="py-3 px-4 text-left">Address</th>
+                            <th class="py-3 px-4 text-left">Region</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr class="bg-blue-300">
-                            <td colspan="3" class="py-2 px-4 text-center text-red-500">You haven't set any preferred stores yet.</td>
+                    </thead>
+                    <tbody>
+                        {% if store_preferences %}
+                            {% for preference in store_preferences %}
+                            <tr class="bg-blue-200 hover:bg-blue-300 transition-colors">
+                                <td class="py-3 px-4">{{ preference.store.store_name }}</td>
+                                <td class="py-3 px-4">{{ preference.store.store_address }}</td>
+                                <td class="py-3 px-4">{{ preference.store.store_region }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="bg-blue-200">
+                                <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any preferred stores yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- product preference table-->
+        <div class="w-1/2 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">Your Favorite Products</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-green-100 rounded-lg">
+                    <thead class="bg-green-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Product Name</th>
+                            <th class="py-3 px-4 text-left">Category</th>
+                            <th class="py-3 px-4 text-left">Price</th>
                         </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% if favorite_products %}
+                            {% for favorite in favorite_products %}
+                            <tr class="bg-green-200 hover:bg-green-300 transition-colors">
+                                <td class="py-3 px-4">{{ favorite.product.product_name }}</td>
+                                <td class="py-3 px-4">{{ favorite.product.product_category }}</td>
+                                <td class="py-3 px-4">${{ favorite.product.unit_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="bg-green-200">
+                                <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any favorite products yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- Favorite Products Table -->
-    <div class="w-1/2">
-        <h2 class="text-xl font-semibold mb-2">Your Favorite Products</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-green-500 text-left rounded-lg shadow-lg">
-                <thead class="bg-green-700 text-white">
-                    <tr>
-                        <th class="py-2 px-4">Product Name</th>
-                        <th class="py-2 px-4">Category</th>
-                        <th class="py-2 px-4">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if favorite_products %}
-                        {% for favorite in favorite_products %}
-                        <tr class="bg-green-300 border-b border-gray-300">
-                            <td class="py-2 px-4">{{ favorite.product.product_name }}</td>
-                            <td class="py-2 px-4">{{ favorite.product.product_category }}</td>
-                            <td class="py-2 px-4">${{ favorite.product.unit_price }}</td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr class="bg-green-300">
-                            <td colspan="3" class="py-2 px-4 text-center text-red-500">You haven't set any favorite products yet.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
+
 {% endblock %}

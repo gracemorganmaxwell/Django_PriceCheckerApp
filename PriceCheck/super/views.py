@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from .models import UserStorePreference, Store, FavoriteProduct, Product
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 #Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -75,22 +76,48 @@ def store_preference_view(request):
     return render(request, 'super/store_preference.html', context)
 
 #product list view
+@login_required
 def product_list_view(request):
-   
+    
     categories = Product.objects.values_list('product_category', flat=True).distinct()
 
+   
+    query = request.GET.get('q', '')  
+    selected_category = request.GET.get('category', '') 
+
     
-    selected_category = request.GET.get('category', '')
+    products = Product.objects.all()
+
+    
+    if query:
+        products = products.filter(product_name__icontains=query)
 
    
     if selected_category:
-        products = Product.objects.filter(product_category=selected_category)
-    else:
-        products = Product.objects.all()  
+        products = products.filter(product_category=selected_category)
+
+  
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+
+        if product_id and product_id.isdigit():
+            product = get_object_or_404(Product, product_id=product_id)
+
+         
+            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+            if not created:
+                favorite.delete()
+
+        return redirect('product_list')
+
+   
+    favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
 
     context = {
         'products': products,
         'categories': categories,
-        'selected_category': selected_category  
+        'selected_category': selected_category,
+        'query': query,  
+        'favorite_products': favorite_products
     }
     return render(request, 'super/product_list.html', context)
