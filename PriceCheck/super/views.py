@@ -4,8 +4,9 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference
+from .models import UserStorePreference, Store
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -45,3 +46,26 @@ def register_view(request):
 
 def placeholder_view(request):
     return HttpResponse("Store preference feature coming soon!")
+
+
+
+@login_required
+def store_preference_view(request):
+    store_preferences = UserStorePreference.objects.filter(user=request.user)
+    
+    stores = Store.objects.all()
+
+    if request.method == 'POST':
+        store_id = request.POST.get('store')
+        store = Store.objects.get(id=store_id)
+
+        UserStorePreference.objects.create(user=request.user, store=store)
+        return redirect('store_preference')
+    
+    context = {
+        'store_preferences' : store_preferences,
+        'stores' : stores
+    }
+    return render(request, 'store_preference.html', context)
+
+
