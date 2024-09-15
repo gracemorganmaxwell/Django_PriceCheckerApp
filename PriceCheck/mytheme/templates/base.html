@@ -40,6 +40,12 @@
                             Products
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'cart' %}" class="hover:text-gray-200 transition duration-300 flex items-center">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span class="ml-2">Cart</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <!-- log in/out button -->
@@ -78,7 +84,7 @@
             <!-- Search Link -->
             <a href="{% url 'product_list' %}" class="hover:text-gray-300 flex flex-col items-center">
                 <i class="fas fa-search text-2xl mb-1"></i>
-                <span>Search</span>
+                <span>Product Search</span>
             </a>
             <!-- Favorites Link -->
             <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">

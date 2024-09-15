@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import SupermarketChain, Store, Product, PriceHistory, UserStorePreference, Profile
+from .models import SupermarketChain, Store, Product, PriceHistory, UserStorePreference, Profile, CartItem, Order, OrderItem, FavoriteProduct
 
 # Define an inline admin descriptor for Profile model
 class ProfileInline(admin.StackedInline):
@@ -31,10 +31,25 @@ class SuperAdmin(admin.ModelAdmin):
         ("Name of Supermarket Chain", {'fields': ("chain_name",)}),
     )
 
-@admin.register(Product)
+# @admin.register(Product)
+# class ProductAdmin(admin.ModelAdmin):
+#     list_display = ("product_id", 'product_name', 'unit_type', 'product_code', 'unit_price')
+#     list_filter = ("product_name", "product_code")
+#     search_fields = ["product_name", "product_code"]
+
+#     class Meta:
+#         ordering = ["product_name", "product_code",]
+
+#     fieldsets = (
+#         ("Product", {'fields': ("product_name", "product_code", "unit_type", "unit_price", "on_sale")}),
+#     )
+# admin.site.register(CartItem)
+# admin.site.register(Order)
+# admin.site.register(OrderItem)
+
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'product_name', 'unit_type', 'product_code', 'unit_price')
-    list_filter = ("product_name", "product_code")
+    list_display = ("product_id", 'product_name', 'unit_type', 'product_code', 'unit_price')  # Ensure these fields exist in the Product model
+    list_filter = ("product_name", "product_code",)  # Add fields that exist in the Product model
     search_fields = ["product_name", "product_code"]
 
     class Meta:
@@ -43,6 +58,11 @@ class ProductAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Product", {'fields': ("product_name", "product_code", "unit_type", "unit_price", "on_sale")}),
     )
+admin.site.register(Product, ProductAdmin)
+admin.site.register(CartItem)
+admin.site.register(Order)
+admin.site.register(OrderItem)
+# admin.site.register(FavoriteProduct)
 
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
@@ -72,3 +92,8 @@ class UserStorePreferenceAdmin(admin.ModelAdmin):
 
 # Register Store model if it's not already registered
 admin.site.register(Store)
+
+class FavoriteProductAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product')  # Ensure these fields exist in the FavoriteProduct model
+
+admin.site.register(FavoriteProduct, FavoriteProductAdmin)

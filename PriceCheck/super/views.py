@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from django.views.generic import TemplateView, DetailView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store, FavoriteProduct, Product
+from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+# from django.views import View
 
 #Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -128,3 +130,34 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     return render(request, 'super/product_detail.html', {'product': product})
 
+
+class CartView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        cart_items = CartItem.objects.filter(user=request.user)
+        total_amount = sum(item.total_price for item in cart_items)
+        context = {
+            'cart_items': cart_items,
+            'total_amount': total_amount
+        }
+        return render(request, 'cart.html', context)
+
+class RemoveFromCartView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        item_id = kwargs.get('item_id')
+        CartItem.objects.filter(id=item_id, user=request.user).delete()
+        return redirect('cart')
+
+class CheckoutView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        cart_items = CartItem.objects.filter(user=request.user)
+        total_amount = sum(item.total_price for item in cart_items)
+        context = {
+            'cart_items': cart_items,
+            'total_amount': total_amount
+        }
+        return render(request, 'checkout.html', context)
+
+    def post(self, request, *args, **kwargs):
+        # Handle the checkout process (e.g., creating an order, processing payment)
+        CartItem.objects.filter(user=request.user).delete()  # Clear the cart after checkout
+        return redirect('home')  # Redirect to a thank you page or home
