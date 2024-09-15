@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PriceCheck</title>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100">
     <!-- Navigation Bar -->
@@ -65,5 +68,28 @@
         {% block content %}
         {% endblock %}
     </div>
+    <footer class="bg-gray-800 text-white p-6">
+        <div class="container mx-auto flex justify-between items-center max-w-4xl">
+            <!-- Home Link -->
+            <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
+                <i class="fas fa-home text-2xl mb-1"></i>
+                <span>Home</span>
+            </a>
+            <!-- Search Link -->
+            <a href="{% url 'product_list' %}" class="hover:text-gray-300 flex flex-col items-center">
+                <i class="fas fa-search text-2xl mb-1"></i>
+                <span>Search</span>
+            </a>
+            <!-- Favorites Link -->
+            <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
+                <i class="fas fa-heart text-2xl mb-1"></i>
+                <span>Favorites</span>
+            </a>
+        </div>
+        <div class="text-center mt-4">
+            &copy; 2024 Supermarket Price Comparison
+        </div>
+    </footer>
+        
 </body>
 </html>

@@ -46,9 +46,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'date', 'price', 'on_sale', 'store_id')
+    list_display = ("product_id", 'date', 'price', 'on_sale', 'store_id_id')
     list_filter = ("product_id", "price")
-    search_fields = ["product_id", "price", 'on_sale','store_id']
+    search_fields = ["product_id", "price", 'on_sale','store_id_id']
 
     class Meta:
         ordering = ["product_id", "price",]

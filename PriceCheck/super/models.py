@@ -69,11 +69,11 @@ class Product(models.Model):
 
 class PriceHistory(models.Model):
     price_history_id = models.AutoField(primary_key=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(auto_now_add=True)
     on_sale = models.BooleanField(null=True, default=None)
-    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    store_id_id = models.ForeignKey(Store, on_delete=models.CASCADE)
 
 
     def __str__(self):
