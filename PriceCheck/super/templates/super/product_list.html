@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Product List</h1>
 
-<!-- Category dropdown menu and Search bar -->
+
 <form method="GET" action="{% url 'product_list' %}" class="mb-4">
-    <!-- Search by product name -->
+    
     <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
     <input 
         type="text" 
@@ -17,7 +16,7 @@
         placeholder="Enter product name..."
     />
 
-    <!-- Category dropdown -->
+    
     <label for="category" class="block text-lg mb-2">Select a Category:</label>
     <select 
         id="category" 
@@ -32,7 +31,7 @@
         {% endfor %}
     </select>
     
-    <!-- Search button -->
+    <
     <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         Search
     </button>
@@ -44,7 +43,7 @@
     <div class="relative bg-white shadow-lg rounded-lg overflow-hidden flex flex-col justify-between">
         <div class="relative h-48">
             {% if product.product_image %}
-                <a href="{% url 'product_detail' products.product_id %}">
+                <a href="{% url 'product_detail' product.product_id %}">
                     <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-full w-full object-cover">
                 </a>
             {% else %}
@@ -63,36 +62,41 @@
             <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ product.unit_price }}</p>
         </div>
 
-        <!-- Favorite product Button -->
-        <form method="POST" action="{% url 'product_list' %}">
-            {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+       
+        {% if user.is_authenticated %}
+            <!-- favorite product Button -->
+            <form method="POST" action="{% url 'product_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                
+                <button type="submit" class="absolute bottom-4 right-4 focus:outline-none">
+                    {% if product.product_id in favorite_products %}
+                        <!-- red heart for favorite item -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    {% else %}
+                        <!-- clear heart -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z" />
+                        </svg>
+                    {% endif %}
+                </button>
+            </form>
+
             
-            <button type="submit" class="absolute bottom-4 right-4 focus:outline-none">
-                {% if product.product_id in favorite_products %}
-                  <!-- red heart for favorite item -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                    </svg>
-                {% else %}
-                    <!-- clear heart -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z" />
-                    </svg>
-                {% endif %}
-            </button>
-        </form>
-        <!-- Cart Button -->
-        <form method="POST" action="{% url 'product_list' %}" class="absolute top-4 rigt-4">
-            {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white hover:bg-blue-700 focus:outline-none">
-                <i class="fas fa-shopping-cart"></i>
-            </button>
-        </form>
+            <form method="POST" action="{% url 'product_list' %}" class="absolute top-4 right-4">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white hover:bg-blue-700 focus:outline-none">
+                    <i class="fas fa-shopping-cart"></i>
+                </button>
+            </form>
+        {% else %}
+            <p class="text-gray-600 p-4">Please log in to add this product to your favorites or cart.</p>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
 
 {% endblock %}
-

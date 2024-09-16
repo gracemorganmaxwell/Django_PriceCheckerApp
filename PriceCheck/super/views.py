@@ -79,42 +79,37 @@ def store_preference_view(request):
     return render(request, 'super/store_preference.html', context)
 
 #product list view
-@login_required
+
 def product_list_view(request):
-    
     categories = Product.objects.values_list('product_category', flat=True).distinct()
 
-   
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
 
-    
     products = Product.objects.all()
 
-    
     if query:
         products = products.filter(product_name__icontains=query)
 
-   
     if selected_category:
         products = products.filter(product_category=selected_category)
 
-  
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
+    
+    favorite_products = []
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            product_id = request.POST.get('product_id')
 
-        if product_id and product_id.isdigit():
-            product = get_object_or_404(Product, product_id=product_id)
+            if product_id and product_id.isdigit():
+                product = get_object_or_404(Product, product_id=product_id)
 
-         
-            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
-            if not created:
-                favorite.delete()
+                
+                favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+                if not created:
+                    favorite.delete()
 
-        return redirect('product_list')
-
-   
-    favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
+        
+        favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
 
     context = {
         'products': products,
@@ -124,6 +119,7 @@ def product_list_view(request):
         'favorite_products': favorite_products
     }
     return render(request, 'super/product_list.html', context)
+
 
     
 def product_detail(request, product_id):
