@@ -82,12 +82,12 @@ class PriceHistory(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(auto_now_add=True)
     on_sale = models.BooleanField(null=True, default=None)
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
-    store_id_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, to_field='product_code', on_delete=models.CASCADE)
+    store= models.ForeignKey(Store, on_delete=models.CASCADE)
 
 
     def __str__(self):
-        return str(self.product_id) + ": $" + str(self.price)
+        return str(self.product) + ": $" + str(self.price)
     def get_absolute_url(self):
         return reverse ("price_history_detail", kwargs= {"product_id": self.pk})
 
