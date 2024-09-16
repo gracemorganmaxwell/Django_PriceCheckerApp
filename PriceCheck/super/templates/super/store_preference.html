@@ -9,7 +9,10 @@
     <!-- Supermarket Images Section -->
     <div class="flex justify-between mb-8">
         <!-- Pak'nSave -->
-        <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
+            <a href="{% url 'store_select' 1 %}">
+                 <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
+            </a>
+     
         <img src="{% static 'images/New_World.png' %}" alt="New World" class="w-40 h-40 rounded-lg shadow-lg">
         <img src="{% static 'images/Woolworths.png' %}" alt="Woolworths" class="w-40 h-40 rounded-lg shadow-lg">
         <img src="{% static 'images/four_square.png' %}" alt="Four Square" class="w-40 h-40 rounded-lg shadow-lg">

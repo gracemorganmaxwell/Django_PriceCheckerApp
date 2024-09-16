@@ -88,25 +88,18 @@ def product_list_view(request):
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
 
-    
+    # Filter products based on search and category
     products = Product.objects.all()
-
-    
     if query:
         products = products.filter(product_name__icontains=query)
-
-   
     if selected_category:
         products = products.filter(product_category=selected_category)
-
+    
   
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
-
         if product_id and product_id.isdigit():
             product = get_object_or_404(Product, product_id=product_id)
-
-         
             favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
             if not created:
                 favorite.delete()
@@ -161,3 +154,8 @@ class CheckoutView(LoginRequiredMixin, View):
         # Handle the checkout process (e.g., creating an order, processing payment)
         CartItem.objects.filter(user=request.user).delete()  # Clear the cart after checkout
         return redirect('home')  # Redirect to a thank you page or home
+    
+def store_select(request, store_id):
+    store = get_object_or_404(Store, store_id=store_id)
+    all_stores = Store.objects.all()  # Fetch all stores to populate the dropdown
+    return render(request, 'super/store_select.html', {'store': store, 'all_stores': all_stores})

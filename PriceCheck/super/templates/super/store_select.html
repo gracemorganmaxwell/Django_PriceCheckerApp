@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h1 class="text-3xl font-bold mb-4">{{ store.store_name }}</h1>
+
+    <div class="mb-8">
+        <p class="text-lg font-semibold">Store Select:</p>
+        <p><strong>Address:</strong> {{ store.store_address }}</p>
+        <p><strong>Region:</strong> {{ store.store_region }}</p>
+    </div>
+
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Select a Store to Add to Preferences:</label>
+            <select id="store" name="store_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                {% for s in all_stores %}
+                    <option value="{{ s.store_id }}" {% if s.store_id == store.store_id %}selected{% endif %}>
+                        {{ s.store_name }} - {{ s.store_region }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Add to My Preferences
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
