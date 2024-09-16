@@ -66,15 +66,15 @@ admin.site.register(OrderItem)
 
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("product_id", 'date', 'price', 'on_sale', 'store_id_id')
-    list_filter = ("product_id", "price")
-    search_fields = ["product_id", "price", 'on_sale','store_id_id']
+    list_display = ("product", 'date', 'price', 'on_sale', 'store')
+    list_filter = ("product", "price")
+    search_fields = ["product", "price", 'on_sale','store']
 
     class Meta:
-        ordering = ["product_id", "price",]
+        ordering = ["product", "price",]
 
     fieldsets = (
-        ("Price History", {'fields': ("product_id", "price", "on_sale")}),
+        ("Price History", {'fields': ("product", "price", "on_sale")}),
     )
 
 @admin.register(UserStorePreference)
