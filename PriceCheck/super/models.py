@@ -79,7 +79,7 @@ class Product(models.Model):
 
 class PriceHistory(models.Model):
     price_history_id = models.AutoField(primary_key=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     date = models.DateField(auto_now_add=True)
     on_sale = models.BooleanField(null=True, default=None)
     product = models.ForeignKey(Product, to_field='product_code', on_delete=models.CASCADE)
