@@ -67,7 +67,7 @@ def store_preference_view(request):
 
     if request.method == 'POST':
         store_id = request.POST.get('store')
-        store = Store.objects.get(id=store_id)
+        store = Store.objects.get(store_id=store_id)
 
         UserStorePreference.objects.create(user=request.user, store=store)
         return redirect('store_preference')
@@ -158,4 +158,5 @@ class CheckoutView(LoginRequiredMixin, View):
 def store_select(request, store_id):
     store = get_object_or_404(Store, store_id=store_id)
     all_stores = Store.objects.all()  # Fetch all stores to populate the dropdown
+    # all_stores = Store.objects.filter(chain_id=store.chain_id)
     return render(request, 'super/store_select.html', {'store': store, 'all_stores': all_stores})

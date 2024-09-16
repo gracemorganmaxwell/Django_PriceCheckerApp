@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container mx-auto mt-8">
@@ -10,10 +11,13 @@
         <p><strong>Region:</strong> {{ store.store_region }}</p>
     </div>
 
+  
+
     <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
         {% csrf_token %}
         <div class="mb-4">
             <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Select a Store to Add to Preferences:</label>
+            <input type="hidden" name="store_id" value="{{ store.store_id }}">
             <select id="store" name="store_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 {% for s in all_stores %}
                     <option value="{{ s.store_id }}" {% if s.store_id == store.store_id %}selected{% endif %}>

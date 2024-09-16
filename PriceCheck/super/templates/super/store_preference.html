@@ -9,14 +9,21 @@
     <!-- Supermarket Images Section -->
     <div class="flex justify-between mb-8">
         <!-- Pak'nSave -->
-            <a href="{% url 'store_select' 1 %}">
-                 <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
-            </a>
-     
-        <img src="{% static 'images/New_World.png' %}" alt="New World" class="w-40 h-40 rounded-lg shadow-lg">
-        <img src="{% static 'images/Woolworths.png' %}" alt="Woolworths" class="w-40 h-40 rounded-lg shadow-lg">
+        <a href="{% url 'store_select' 1 %}">
+            <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
+        <a href="{% url 'store_select' 2 %}">
+            <img src="{% static 'images/New_World.png' %}" alt="New World" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
+        <a href="{% url 'store_select' 3 %}">
+            <img src="{% static 'images/Woolworths.png' %}" alt="Woolworths" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>    
+        <a href="{% url 'store_select' 5 %}">
         <img src="{% static 'images/four_square.png' %}" alt="Four Square" class="w-40 h-40 rounded-lg shadow-lg">
-        <img src="{% static 'images/warehouse.png' %}" alt="Warehouse" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>    
+        <a href="{% url 'store_select' 4 %}">    
+            <img src="{% static 'images/warehouse.png' %}" alt="Warehouse" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
     </div>
    
     <!-- Store Preferences Table -->
@@ -54,7 +61,7 @@
             <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Add a Store Preference:</label>
             <select id="store" name="store" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 {% for store in stores %}
-                    <option value="{{ store.id }}">{{ store.store_name }} - {{ store.store_region }}</option>
+                    <option value="{{ store.store_id }}">{{ store.store_name }} - {{ store.store_region }}</option>
                 {% endfor %}
             </select>
         </div>
