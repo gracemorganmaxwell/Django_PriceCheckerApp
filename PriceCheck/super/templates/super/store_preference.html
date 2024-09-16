@@ -1,10 +1,22 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
+
 <div class="container mx-auto mt-8">
     <h1 class="text-3xl font-bold mb-4">Your Store Preferences</h1>
-
+    
+    <!-- Supermarket Images Section -->
+    <div class="flex justify-between mb-8">
+        <!-- Pak'nSave -->
+        <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
+        <img src="{% static 'images/New_World.png' %}" alt="New World" class="w-40 h-40 rounded-lg shadow-lg">
+        <img src="{% static 'images/Woolworths.png' %}" alt="Woolworths" class="w-40 h-40 rounded-lg shadow-lg">
+        <img src="{% static 'images/four_square.png' %}" alt="Four Square" class="w-40 h-40 rounded-lg shadow-lg">
+        <img src="{% static 'images/warehouse.png' %}" alt="Warehouse" class="w-40 h-40 rounded-lg shadow-lg">
+    </div>
    
+    <!-- Store Preferences Table -->
     <div class="overflow-x-auto w-full">
         <table class="min-w-full bg-blue-500 text-left rounded-lg shadow-lg mb-4">
             <thead class="bg-blue-700 text-white">
@@ -32,7 +44,7 @@
         </table>
     </div>
 
-  
+    <!-- Add Store Preference Form -->
     <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         {% csrf_token %}
         <div class="mb-4">

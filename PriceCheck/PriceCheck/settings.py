@@ -144,7 +144,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -158,7 +158,8 @@ INTERNAL_IPS = [
 ]
 
 MEDIA_URL='media/'
-MEDIA_ROOT= BASE_DIR / 'media'
+# MEDIA_ROOT= BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = '/'  
 LOGOUT_REDIRECT_URL = '/' 
 LOGIN_URL = '/login/'  
@@ -168,3 +169,4 @@ AUTHENTICATION_BACKENDS = [
     # Remove the custom backend if you're not using it anymore
     # 'super.backends.EmailOrUsernameBackend',  
 ]
+
