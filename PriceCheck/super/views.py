@@ -235,3 +235,15 @@ def remove_favorite(request, product_id):
     favorite = get_object_or_404(FavoriteProduct, user=request.user, product__product_id=product_id)
     favorite.delete()
     return redirect('home')  # Redirect to the homepage or another page as needed
+
+
+@login_required
+def remove_store_preference(request, store_id):
+    # Get the store preference object
+    preference = get_object_or_404(UserStorePreference, user=request.user, store_id=store_id)
+    
+    # Delete the store preference
+    preference.delete()
+    
+    # Redirect back to the store preferences page
+    return redirect('store_preference')
