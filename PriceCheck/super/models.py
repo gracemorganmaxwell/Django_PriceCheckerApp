@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 
 
 class SupermarketChain(models.Model):
@@ -141,6 +141,22 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} for {self.user.username}"
+    
+# def remove_from_cart(request, product_id):
+#     # Retrieve the cart from the session
+#     cart = request.session.get('cart', {})
+
+#     # Convert product_id to a string since session keys are stored as strings
+#     product_id_str = str(product_id)
+
+#     if product_id_str in cart:
+#         # Remove the product from the cart
+#         del cart[product_id_str]
+#         # Update the session
+#         request.session['cart'] = cart
+
+#     return redirect('cart')  # Redirect back to the cart page
+
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

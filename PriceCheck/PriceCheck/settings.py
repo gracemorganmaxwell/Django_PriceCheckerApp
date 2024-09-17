@@ -170,3 +170,5 @@ AUTHENTICATION_BACKENDS = [
     # 'super.backends.EmailOrUsernameBackend',  
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: stores sessions in the DB
+SESSION_COOKIE_AGE = 1209600  # Two weeks

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6 text-center">Checkout</h1>
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        {% if cart_items %}
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+                <table class="w-full border-collapse mb-4">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-3 px-4 text-left">Product</th>
+                            <th class="py-3 px-4 text-left">Price</th>
+                            <th class="py-3 px-4 text-left">Quantity</th>
+                            <th class="py-3 px-4 text-left">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr class="border-b">
+                                <td class="py-3 px-4">{{ item.product.product_name }}</td>
+                                <td class="py-3 px-4">${{ item.unit_price }}</td>
+                                <td class="py-3 px-4">{{ item.quantity }}</td>
+                                <td class="py-3 px-4">${{ item.total_price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-right">
+                    <h2 class="text-xl font-semibold">Total: ${{ total_amount }}</h2>
+                </div>
+            </div>
+
+            <form method="POST" action="{% url 'place_order' %}" class="bg-gray-100 p-6 rounded-lg shadow-md">
+                {% csrf_token %}
+                
+                <!-- Billing Information Fields Here -->
+
+                <div class="flex justify-end">
+                    <button 
+                        type="submit" 
+                        class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none"
+                    >
+                        Place Order
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <p class="text-center text-gray-700">Your cart is empty.</p>
+        {% endif %}
+        <!-- Back to Product List Button -->
+        <a href="{% url 'product_list' %}" class="inline-block mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Back to Product List
+        </a>
+    </div>
+{% endblock %}
+

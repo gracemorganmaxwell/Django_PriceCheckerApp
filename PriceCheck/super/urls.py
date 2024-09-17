@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import register_view 
 from django.contrib.auth import views as auth_views
-from .views import HomePageView, store_preference_view, product_list_view, product_detail, CartView, RemoveFromCartView, CheckoutView, store_select
+from .views import HomePageView, store_preference_view, product_list_view, product_detail, CartView, CheckoutView, store_select, add_to_cart, remove_from_cart, update_cart
 from .forms import EmailOrUsernameLoginForm
 from . import views
 
@@ -18,6 +18,9 @@ urlpatterns = [
     path('products/', product_list_view, name='product_list'),
     path('products/<int:product_id>/', product_detail, name='product_detail'),
     path('cart/', CartView.as_view(), name='cart'),
-    path('cart/remove/<int:item_id>/', RemoveFromCartView.as_view(), name='remove_from_cart'),
+    path('add-to-cart/<int:product_id>/', add_to_cart, name='add_to_cart'),
+    # path('cart/remove/<int:item_id>/', RemoveFromCartView.as_view(), name='remove_from_cart'),
+    path('cart/remove/<int:item_id>/', remove_from_cart, name='remove_from_cart'),
+    path('cart/update/', update_cart, name='update_cart'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
 ]

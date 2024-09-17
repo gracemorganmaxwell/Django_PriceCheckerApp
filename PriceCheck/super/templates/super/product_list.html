@@ -4,6 +4,8 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Product List</h1>
 
+
+
 <!-- Category dropdown menu and Search bar -->
 <form method="GET" action="{% url 'product_list' %}" class="mb-4">
     <!-- Search by product name -->
@@ -83,16 +85,46 @@
             </button>
         </form>
         <!-- Cart Button -->
-        <form method="POST" action="{% url 'product_list' %}" class="absolute top-4 rigt-4">
+        <form method="POST" action="{% url 'add_to_cart' product.product_id %}" class="absolute top-4 right-4">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white hover:bg-blue-700 focus:outline-none">
+            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+        
+
+
+            
+            <!-- Check if product is in the cart -->
+            <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full text-white focus:outline-none 
+                {% if product.product_id in cart_items or product.product_id in cart %}
+                    bg-blue-500 hover:bg-blue-700
+                  
+                {% else %}
+                    bg-green-500 hover:bg-green-700
+                {% endif %}">
                 <i class="fas fa-shopping-cart"></i>
             </button>
         </form>
+        
+        
+        
+
     </div>
     {% endfor %}
 </div>
 
+
 {% endblock %}
+<h1 class="text-2xl font-bold mb-4">Product List</h1>
+
+<!-- Category dropdown menu and Search bar -->
+<form method="GET" action="{% url 'product_list' %}" class="mb-4">
+    <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
+    <input type="text" id="search" name="q" value="{{ query }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-4" placeholder="Enter product name...">
+
+    <label for="category" class="block text-lg mb-2">Select a Category:</label>
+    <select id="category" name="category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+        <option value="">All Categories</option>
+        {% for category in categories %}
+            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+        {% endfor %}
+               
 

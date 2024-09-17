@@ -9,6 +9,9 @@ from .models import UserStorePreference, Store, FavoriteProduct, Product, CartIt
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.contrib import messages
+
 # from django.views import View
 
 #Homepage View
@@ -81,10 +84,7 @@ def store_preference_view(request):
 #product list view
 @login_required
 def product_list_view(request):
-    
     categories = Product.objects.values_list('product_category', flat=True).distinct()
-
-   
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
 
@@ -108,13 +108,23 @@ def product_list_view(request):
 
    
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
+    # Assuming cart is stored in session or a Cart model
+    cart = request.session.get('cart', {})
+    cart_items = CartItem.objects.filter(user=request.user).values_list('product__product_id', flat=True)
+
+    # Prepare cart item quantities for template
+    # cart_items = {int(product_id): item['quantity'] for product_id, item in cart.items()}
+    
 
     context = {
         'products': products,
         'categories': categories,
         'selected_category': selected_category,
         'query': query,  
-        'favorite_products': favorite_products
+        'favorite_products': favorite_products,
+        # 'cart_quantities': cart_quantities
+        'cart_items': cart_items,  # Pass the cart items to the template
+        'cart': cart  # Pass session cart
     }
     return render(request, 'super/product_list.html', context)
 
@@ -126,18 +136,77 @@ def product_detail(request, product_id):
 
 class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        cart_items = CartItem.objects.filter(user=request.user)
-        total_amount = sum(item.total_price for item in cart_items)
+        cart = request.session.get('cart', {})
+        cart_items = []
+        total_amount = 0
+
+        for product_id, details in cart.items():
+            product = get_object_or_404(Product, product_id=int(product_id))
+            quantity = details['quantity']
+            total_price = float(details['price']) * quantity
+            total_amount += total_price
+
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'total_price': total_price
+            })
+
         context = {
             'cart_items': cart_items,
             'total_amount': total_amount
         }
-        return render(request, 'cart.html', context)
+        return render(request, 'super/cart.html', context)
 
-class RemoveFromCartView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        item_id = kwargs.get('item_id')
-        CartItem.objects.filter(id=item_id, user=request.user).delete()
+    
+    
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, product_id=product_id)
+    
+    # Get the current cart from session or initialize an empty cart
+    cart = request.session.get('cart', {})
+
+    # Convert product_id to a string since session keys are stored as strings
+    product_id_str = str(product_id)
+
+    if product_id_str in cart:
+        cart[product_id_str]['quantity'] += 1
+    else:
+        cart[product_id_str] = {
+            'name': product.product_name,
+            'price': str(product.unit_price),  # Store price as string to prevent JSON issues
+            'quantity': 1
+        }
+
+    # Update the session cart
+    request.session['cart'] = cart
+    return redirect('product_list')  # Redirect to cart page
+
+
+
+def remove_from_cart(request, item_id):
+    cart = request.session.get('cart', {})
+
+    product_id_str = str(item_id)
+
+    if product_id_str in cart:
+        del cart[product_id_str]
+        request.session['cart'] = cart
+        messages.success(request, 'Item removed from cart.')
+
+    return redirect('cart')
+
+def update_cart(request):
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        for key in request.POST:
+            if key.startswith('quantity_'):
+                product_id = key.split('_')[1]
+                new_quantity = int(request.POST.get(key, 1))
+                if new_quantity > 0:
+                    if product_id in cart:
+                        cart[product_id]['quantity'] = new_quantity
+        request.session['cart'] = cart
         return redirect('cart')
 
 class CheckoutView(LoginRequiredMixin, View):
@@ -148,7 +217,7 @@ class CheckoutView(LoginRequiredMixin, View):
             'cart_items': cart_items,
             'total_amount': total_amount
         }
-        return render(request, 'checkout.html', context)
+        return render(request, 'super/checkout.html', context)
 
     def post(self, request, *args, **kwargs):
         # Handle the checkout process (e.g., creating an order, processing payment)
