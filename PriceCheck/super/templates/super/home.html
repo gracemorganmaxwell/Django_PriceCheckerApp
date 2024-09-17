@@ -62,7 +62,14 @@
                             <tr class="bg-green-200 hover:bg-green-300 transition-colors">
                                 <td class="py-3 px-4">{{ favorite.product.product_name }}</td>
                                 <td class="py-3 px-4">{{ favorite.product.product_category }}</td>
-                                <td class="py-3 px-4">${{ favorite.product.unit_price }}</td>
+                                <td class="py-3 px-4">
+                                    <form method="POST" action="{% url 'remove_favorite' favorite.product.product_id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}

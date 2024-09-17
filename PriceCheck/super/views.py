@@ -108,12 +108,9 @@ def product_list_view(request):
 
    
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
-    # Assuming cart is stored in session or a Cart model
     cart = request.session.get('cart', {})
     cart_items = CartItem.objects.filter(user=request.user).values_list('product__product_id', flat=True)
 
-    # Prepare cart item quantities for template
-    # cart_items = {int(product_id): item['quantity'] for product_id, item in cart.items()}
     
 
     context = {
@@ -127,6 +124,7 @@ def product_list_view(request):
         'cart': cart  # Pass session cart
     }
     return render(request, 'super/product_list.html', context)
+
 
     
 def product_detail(request, product_id):
@@ -229,3 +227,11 @@ def store_select(request, store_id):
     all_stores = Store.objects.all()  # Fetch all stores to populate the dropdown
     # all_stores = Store.objects.filter(chain_id=store.chain_id)
     return render(request, 'super/store_select.html', {'store': store, 'all_stores': all_stores})
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import FavoriteProduct
+
+def remove_favorite(request, product_id):
+    favorite = get_object_or_404(FavoriteProduct, user=request.user, product__product_id=product_id)
+    favorite.delete()
+    return redirect('home')  # Redirect to the homepage or another page as needed
