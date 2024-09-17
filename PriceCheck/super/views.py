@@ -87,6 +87,7 @@ def product_list_view(request):
     categories = Product.objects.values_list('product_category', flat=True).distinct()
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
+    sort_by = request.GET.get('sort', 'no_price')  # Default to 'no_price'
 
     # Filter products based on search and category
     products = Product.objects.all()
@@ -95,7 +96,13 @@ def product_list_view(request):
     if selected_category:
         products = products.filter(product_category=selected_category)
     
-  
+    # Apply sorting based on the 'sort_by' parameter
+    if sort_by == 'lowest_price':
+        products = products.order_by('unit_price')
+    elif sort_by == 'highest_price':
+        products = products.order_by('-unit_price')
+    # 'no_price' is the default, so products are not ordered
+
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         if product_id and product_id.isdigit():
@@ -119,7 +126,6 @@ def product_list_view(request):
         'selected_category': selected_category,
         'query': query,  
         'favorite_products': favorite_products,
-        # 'cart_quantities': cart_quantities
         'cart_items': cart_items,  # Pass the cart items to the template
         'cart': cart  # Pass session cart
     }

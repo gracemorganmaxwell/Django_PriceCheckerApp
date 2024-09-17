@@ -33,6 +33,17 @@
             </option>
         {% endfor %}
     </select>
+
+    <label for="sort" class="block text-lg mb-2 mt-4">Sort by Price:</label>
+    <select 
+        id="sort" 
+        name="sort" 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    >
+        <option value="no_price" {% if sort_by == 'no_price' %}selected{% endif %}>No Price</option>
+        <option value="lowest_price" {% if sort_by == 'lowest_price' %}selected{% endif %}>Lowest Price</option>
+        <option value="highest_price" {% if sort_by == 'highest_price' %}selected{% endif %}>Highest Price</option>
+    </select>
     
     <!-- Search button -->
     <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
