@@ -57,6 +57,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <div class="flex justify-end items-right mb-4">
+                            <!-- Add More Favorites Button at the top-left -->
+                            <a href="{% url 'product_list' %}" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add More Favorites
+                            </a>
+                        </div>
+                        
                         {% if favorite_products %}
                             {% for favorite in favorite_products %}
                             <tr class="bg-green-200 hover:bg-green-300 transition-colors">
@@ -77,6 +84,7 @@
                                 <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any favorite products yet.</td>
                             </tr>
                         {% endif %}
+
                     </tbody>
                 </table>
             </div>
