@@ -50,6 +50,13 @@
         Search
     </button>
 </form>
+{% if messages %}
+    <div class="fixed top-0 right-0 m-4 p-4 bg-green-500 text-white rounded shadow-md">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
 
 <!-- Product cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

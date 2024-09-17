@@ -168,6 +168,7 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, product_id=product_id)
     
     # Get the current cart from session or initialize an empty cart
+    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
     cart = request.session.get('cart', {})
 
     # Convert product_id to a string since session keys are stored as strings
@@ -175,12 +176,14 @@ def add_to_cart(request, product_id):
 
     if product_id_str in cart:
         cart[product_id_str]['quantity'] += 1
+        messages.info(request, f'{product.product_name} quantity updated in your cart.')
     else:
         cart[product_id_str] = {
             'name': product.product_name,
             'price': str(product.unit_price),  # Store price as string to prevent JSON issues
             'quantity': 1
         }
+        messages.success(request, f'{product.product_name} has been added to your cart.')
 
     # Update the session cart
     request.session['cart'] = cart
