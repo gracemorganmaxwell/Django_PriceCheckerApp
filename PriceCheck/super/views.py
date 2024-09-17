@@ -5,12 +5,13 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem
+from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem, PriceHistory
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
+import json
 
 # from django.views import View
 
@@ -135,9 +136,17 @@ def product_list_view(request):
     
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
-    return render(request, 'super/product_detail.html', {'product': product})
+    price_history = PriceHistory.objects.filter(product=product).order_by('date')
 
+    # Prepare data for the chart
+    price_data = [float(history.price) for history in price_history]
+    date_data = [history.date.strftime('%Y-%m-%d') for history in price_history]
 
+    return render(request, 'super/product_detail.html', {
+        'product': product,
+        'price_data': json.dumps(price_data),  # Convert to JSON
+        'date_data': json.dumps(date_data),    # Convert to JSON
+    })
 class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart = request.session.get('cart', {})
