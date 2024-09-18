@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-
+{% load cart_filters %}
+{% load cart_extras %} 
 
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <h2 class="text-3xl font-bold mb-4">{{ object.product_name }}</h2>
-    <a href="{% url 'product_list' %}" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to Product List</a>
-</div>
 
+<h2 class="text-3xl font-bold mb-4">{{ object.product_name }}</h2>
+<a href="{% url 'product_list' %}" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to Product List</a>
 
 <div class="container mx-auto p-8">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row">
@@ -32,9 +32,72 @@
             <p class="text-gray-700 mb-2"><strong>Last Updated:</strong> {{ product.last_updated }}</p>
             <p class="text-gray-700 mb-2"><strong>Last Checked:</strong> {{ product.last_checked }}</p>
             <p class="text-gray-700 mb-2"><strong>Original Quantity:</strong> {{ product.original_unit_quantity }} {{ product.unit_type }}</p>
+            
+            <!-- Add to Cart and Favorite buttons -->
+            <!-- <div class="flex justify-between items-center mt-4"> -->
+                
+                <!-- Favorite product button -->
+                <div class="flex justify-end mt-4">
+                    <form method="POST" action="{% url 'product_list' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.product_id }}">
+
+                        <button type="submit"  >
+                            {% if product.product_id in favorite_products %}
+                                <!-- red heart for favorite item -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            {% else %}
+                                <!-- clear heart -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-1500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z" />
+                                </svg>
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>    
+
+                <!-- Cart Button -->
+                <div class="flex items-center">
+                    <form method="POST" action="{% url 'add_to_cart' product.product_id %}"  >
+                        {% csrf_token %}
+                        <button type="submit" class="px-3 py-1 bg-green-500 hover:bg-green-700 text-white rounded-l">+</button>
+            
+                    </form>
+                        
+                    <!-- Display the quantity of the product in the cart -->
+                    <span class="px-3">{{ cart_items|dict_item:product.product_id|stringformat:'s'|default:0 }}</span>
+
+                    <form method="POST" action="{% url 'remove_from_cart' product.product_id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="px-3 py-1 bg-red-500 hover:bg-red-700 text-white rounded-r">-</button>
+                    </form>
+                </div>
+                
+            <!-- </div> -->
         </div>
     </div>
 </div>
+
+<!-- JavaScript to handle increment and decrement of quantity -->
+<script>
+function incrementQuantity() {
+    var qtyInput = document.getElementById('quantity');
+    var currentQty = parseInt(qtyInput.value);
+    qtyInput.value = currentQty + 1;
+}
+
+function decrementQuantity() {
+    var qtyInput = document.getElementById('quantity');
+    var currentQty = parseInt(qtyInput.value);
+    if (currentQty > 1) {
+        qtyInput.value = currentQty - 1;
+    }
+}
+</script>
+
+
 
 <div class="mt-8">
     <h3 class="text-xl font-bold mb-4">Price History Chart</h3>

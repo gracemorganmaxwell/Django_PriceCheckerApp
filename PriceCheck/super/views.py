@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem, PriceHistory
+from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem, PriceHistory, CartItem
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -35,8 +35,19 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
         return context
 
+def toggle_favorite(request, product_id):
+    product = get_object_or_404(Product, product_id=product_id)
+    favorite_product, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
 
+    if not created:
+        # If the product is already a favorite, remove it
+        favorite_product.delete()
+        messages.success(request, f"{product.product_name} was removed from your favorites.")
+    else:
+        # If it's not a favorite, add it
+        messages.success(request, f"{product.product_name} was added to your favorites.")
 
+    return redirect('product_detail', product_id=product_id)
 
 #sign up view
 def register_view(request):
@@ -142,11 +153,39 @@ def product_detail(request, product_id):
     price_data = [float(history.price) for history in price_history]
     date_data = [history.date.strftime('%Y-%m-%d') for history in price_history]
 
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        if product_id and product_id.isdigit():
+            product = get_object_or_404(Product, product_id=product_id)
+            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+            if not created:
+                favorite.delete()
+
+        return redirect('product_detail')
+
+   
+    favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
+    
+    cart = request.session.get('cart', {})
+    # print("cart")
+    # print(cart)
+    cart_items = CartItem.objects.filter(user=request.user).values_list('product_id', flat=True)
+    cart = CartItem(request)
+    print("cb")
+    print(cart_items)  # For debugging: check if this prints a dictionary
+    print(cart_items[2])
+    
     return render(request, 'super/product_detail.html', {
         'product': product,
+        'favorite_products': list(favorite_products),
         'price_data': json.dumps(price_data),  # Convert to JSON
         'date_data': json.dumps(date_data),    # Convert to JSON
+        'cart_items': cart_items,
+        'cart': cart
+
     })
+
+
 class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart = request.session.get('cart', {})
@@ -171,7 +210,6 @@ class CartView(LoginRequiredMixin, View):
         }
         return render(request, 'super/cart.html', context)
 
-    
     
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, product_id=product_id)
@@ -265,3 +303,7 @@ def remove_store_preference(request, store_id):
     
     # Redirect back to the store preferences page
     return redirect('store_preference')
+
+def get_cart_items(self):
+    # Assuming cart_items is a dictionary of product_id and quantity
+    return {str(item['product_id']): item['quantity'] for item in self.cart}
