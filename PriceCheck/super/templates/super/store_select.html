@@ -14,14 +14,17 @@
 
   
 
-    <form method="POST" action="{% url 'store_preference' %}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
         {% csrf_token %}
         <div class="mb-4">
-            <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Add a Store Preference:</label>
-            <select id="store" name="store" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                {% for store in stores %}
-                    <option value="{{ store.store_id }}">{{ store.store_name }} - {{ store.store_region }}</option>
-                {% endfor %}
+            <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Select a Store to Add to Preferences:</label>
+            <input type="hidden" name="store_id" value="{{ store.store_id }}">
+            <select id="store" name="store_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                {% for s in all_stores %}
+                    <option value="{{ s.store_id }}" {% if s.store_id == store.store_id %}selected{% endif %}>
+                        {{ s.store_name }} - {{ s.store_region }}
+                    </option>
+                    {% endfor %}
             </select>
         </div>
         <div class="flex items-center justify-between">
@@ -30,6 +33,5 @@
             </button>
         </div>
     </form>
-</div>
 {% endblock %}
 
