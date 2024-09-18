@@ -67,7 +67,7 @@
                     </form>
                         
                     <!-- Display the quantity of the product in the cart -->
-                    <span class="px-3">{{ cart_items|dict_item:product.product_id|stringformat:'s'|default:0 }}</span>
+                    <span class="px-3">{{ cart_items|dict_item:product.product_id|stringformat:'s'|default:1 }}</span>
 
                     <form method="POST" action="{% url 'remove_from_cart' product.product_id %}">
                         {% csrf_token %}
