@@ -83,7 +83,8 @@ def store_preference_view(request):
     if request.method == 'POST':
         store_id = request.POST.get('store')
         store = Store.objects.get(store_id=store_id)
-
+        user = request.user
+        
         UserStorePreference.objects.create(user=request.user, store=store)
         return redirect('store_preference')
     

@@ -26,5 +26,6 @@ urlpatterns = [
     path('remove_store_preference/<int:store_id>/', remove_store_preference, name='remove_store_preference'),
     path('product/<int:product_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('toggle_favorite/<int:product_id>/', views.toggle_favorite, name='toggle_favorite'),
+    
 
 ]
