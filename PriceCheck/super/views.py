@@ -236,4 +236,34 @@ class CheckoutView(LoginRequiredMixin, View):
             'cart_items': cart_items,
             'total_amount': total_amount
         }
-       
+
+# Store select view
+@login_required
+def store_select(request, store_id):
+    store = get_object_or_404(Store, store_id=store_id)
+    all_stores = Store.objects.all()
+    
+    if request.method == 'POST':
+        selected_store_id = request.POST.get('store_id')
+        selected_store = get_object_or_404(Store, store_id=selected_store_id)
+        UserStorePreference.objects.get_or_create(user=request.user, store=selected_store)
+        return redirect('store_preference')
+    
+    context = {
+        'store': store,
+        'all_stores': all_stores,
+    }
+    return render(request, 'super/store_select.html', context)
+ 
+# Remove store preference
+@login_required
+def remove_store_preference(request, store_id):
+    store = get_object_or_404(Store, store_id=store_id)
+    UserStorePreference.objects.filter(user=request.user, store=store).delete()
+    messages.success(request, f"{store.store_name} has been removed from your preferences.")
+    return redirect('store_preference')
+
+def remove_favorite(request, product_id):
+    favorite = get_object_or_404(FavoriteProduct, user=request.user, product__product_id=product_id)
+    favorite.delete()
+    return redirect('home')  # Redirect to the homepage or another page as needed
