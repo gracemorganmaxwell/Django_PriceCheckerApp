@@ -151,24 +151,50 @@
     </div>
     {% endfor %}
 </div>
-
 <!-- Pagination Controls -->
-<div class="pagination">
-    <span class="step-links">
+<div class="flex justify-center mt-6">
+    <nav aria-label="Pagination" class="inline-flex rounded-md shadow-sm">
+        <!-- First and Previous Links -->
         {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            <a href="?page=1" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                &laquo; First
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">
+                Previous
+            </a>
+        {% else %}
+            <!-- Disabled First and Previous Links -->
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-l-md">
+                &laquo; First
+            </span>
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed">
+                Previous
+            </span>
         {% endif %}
 
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        <!-- Current Page Number -->
+        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
 
+        <!-- Next and Last Links -->
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">
+                Next
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                Last &raquo;
+            </a>
+        {% else %}
+            <!-- Disabled Next and Last Links -->
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed">
+                Next
+            </span>
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-r-md">
+                Last &raquo;
+            </span>
         {% endif %}
-    </span>
+    </nav>
 </div>
 
 {% endblock %}
