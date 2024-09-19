@@ -90,6 +90,20 @@ class PriceHistory(models.Model):
         return str(self.product) + ": $" + str(self.price)
     def get_absolute_url(self):
         return reverse ("price_history_detail", kwargs= {"product_id": self.pk})
+    
+    def get_price_trend(self):
+        
+        previous_price_history = PriceHistory.objects.filter(product=self.product).order_by('-date')[1:2]
+        if previous_price_history.exists():
+            previous_price = previous_price_history[0].price
+            if self.price > previous_price:
+                return 'up'
+            elif self.price < previous_price:
+                return 'down'
+        return 'same' 
+
+
+    
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
