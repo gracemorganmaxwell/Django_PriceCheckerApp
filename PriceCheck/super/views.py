@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
 import json
+from django.core.paginator import Paginator
 
 # from django.views import View
 
@@ -100,7 +101,7 @@ def product_list_view(request):
     categories = Product.objects.values_list('product_category', flat=True).distinct()
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
-    sort_by = request.GET.get('sort', 'no_price')  # Default to 'no_price'
+    sort_by = request.GET.get('sort', 'no_price')
 
     # Filter products based on search and category
     products = Product.objects.all()
@@ -114,46 +115,55 @@ def product_list_view(request):
         products = products.order_by('unit_price')
     elif sort_by == 'highest_price':
         products = products.order_by('-unit_price')
-    # 'no_price' is the default, so products are not ordered
 
-     # Incorporate price trend for each product
+    # Prefetch or bulk-fetch price history
+    price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
+    
+    # Create a dictionary to store the latest and previous prices
+    price_data = {}
+    for price_history in price_histories:
+        product_id = price_history.product_id
+        if product_id not in price_data:
+            price_data[product_id] = {'latest_price': price_history.price, 'previous_price': None}
+        elif price_data[product_id]['previous_price'] is None:
+            price_data[product_id]['previous_price'] = price_history.price
+    
+    # Calculate the price trend for each product
     product_data = []
     for product in products:
-        latest_price_history = PriceHistory.objects.filter(product=product).order_by('-date').first()
-        price_trend = None
-        if latest_price_history:
-            price_trend = latest_price_history.get_price_trend()
-
+        trend = None
+        if product.product_id in price_data:
+            current = price_data[product.product_id]['latest_price']
+            previous = price_data[product.product_id]['previous_price']
+            if previous is not None and current is not None:
+                if current > previous:
+                    trend = 'up'
+                elif current < previous:
+                    trend = 'down'
+                else:
+                    trend = 'same'
         product_data.append({
             'product': product,
-            'price_trend': price_trend,
+            'price_trend': trend,
         })
 
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        if product_id and product_id.isdigit():
-            product = get_object_or_404(Product, product_id=product_id)
-            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
-            if not created:
-                favorite.delete()
+    # Now apply pagination to the constructed 'product_data'
+    paginator = Paginator(product_data, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-        return redirect('product_list')
-
-   
+    # Handle the rest of the context and logic
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
-    cart = request.session.get('cart', {})
     cart_items = CartItem.objects.filter(user=request.user).values_list('product__product_id', flat=True)
 
-    
-
     context = {
-        'products': products,
+        'page_obj': page_obj,  # Pass the paginated data to the template
         'categories': categories,
         'selected_category': selected_category,
         'query': query,  
         'favorite_products': favorite_products,
         'cart_items': cart_items,  # Pass the cart items to the template
-        'cart': cart  # Pass session cart
+        'cart': request.session.get('cart', {}),  # Pass session cart
     }
     return render(request, 'super/product_list.html', context)
 
