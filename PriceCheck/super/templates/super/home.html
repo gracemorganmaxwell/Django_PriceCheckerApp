@@ -1,113 +1,164 @@
-{% extends "base.html" %}
-
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <div class="container mx-auto my-8">
-    
-    <h2 class="text-lg font-medium text-gray-700 text-center mb-2">
-        Welcome, {{ user.username }}!
-    </h2>
+  <h2 class="text-lg font-medium text-gray-700 text-center mb-2">
+    Welcome, {{ user.username }}!
+  </h2>
 
-    <h1 class="text-3xl font-bold mb-8 text-gray-800 text-center">Your Dashboard</h1>
+  <h1 class="text-3xl font-bold mb-8 text-gray-800 text-center">
+    Your Dashboard
+  </h1>
 
+  <div class="flex space-x-8">
+    <!-- store preference table-->
+    <div class="w-1/2 bg-white rounded-lg shadow-lg p-6 relative">
+      <h2 class="text-xl font-semibold mb-4 text-blue-600">
+        Your Store Preferences
+      </h2>
 
-    <div class="flex space-x-8">
-        <!-- store preference table--> 
-        <div class="w-1/2 bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-xl font-semibold mb-4 text-blue-600">Your Store Preferences</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-blue-100 rounded-lg">
-                    <thead class="bg-blue-500 text-white">
-                        <tr>
-                            <th class="py-3 px-4 text-left">Store Name</th>
-                            <th class="py-3 px-4 text-left">Address</th>
-                            <th class="py-3 px-4 text-left">Region</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <div class="flex justify-end items-right mb-4">
-                            <!-- Add More Favorites Button at the top-left -->
-                            <a href="{% url 'store_preference' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Add More Stores
-                            </a>
-                        </div>
-                        
+      <a
+        href="{% url 'store_preference' %}"
+        class="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </a>
 
-                        {% if store_preferences %}
-                            {% for preference in store_preferences %}
-                            <tr class="bg-blue-200 hover:bg-blue-300 transition-colors">
-                                <td class="py-3 px-4">{{ preference.store.store_name }}</td>
-                                <td class="py-3 px-4">{{ preference.store.store_address }}</td>
-                                <td class="py-3 px-4">{{ preference.store.store_region }}</td>
-                                <td class="py-3 px-4">
-                                    <form method="POST" action="{% url 'remove_store_preference' preference.store.store_id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="text-red-600 hover:text-red-800">
-                                            Remove
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr class="bg-blue-200">
-                                <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any preferred stores yet.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-blue-100 rounded-lg">
+          <thead class="bg-blue-500 text-white">
+            <tr>
+              <th class="py-3 px-4 text-left">Store Name</th>
+              <th class="py-3 px-4 text-left">Address</th>
+              <th class="py-3 px-4 text-left">Region</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div class="flex justify-end items-right mb-4">
+              <!-- Add More Favorites Button at the top-left -->
+              <a
+                href="{% url 'store_preference' %}"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Add More Stores
+              </a>
             </div>
-        </div>
 
-        <!-- product preference table-->
-        <div class="w-1/2 bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-xl font-semibold mb-4 text-green-600">Your Favorite Products</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-green-100 rounded-lg">
-                    <thead class="bg-green-500 text-white">
-                        <tr>
-                            <th class="py-3 px-4 text-left">Product Name</th>
-                            <th class="py-3 px-4 text-left">Category</th>
-                            <th class="py-3 px-4 text-left">Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <div class="flex justify-end items-right mb-4">
-                            <!-- Add More Favorites Button at the top-left -->
-                            <a href="{% url 'product_list' %}" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Add More Favorites
-                            </a>
-                        </div>
-                        
-                        {% if favorite_products %}
-                            {% for favorite in favorite_products %}
-                            <tr class="bg-green-200 hover:bg-green-300 transition-colors">
-                                <td class="py-3 px-4">{{ favorite.product.product_name }}</td>
-                                <td class="py-3 px-4">{{ favorite.product.product_category }}</td>
-                                <td class="py-3 px-4">
-                                    <form method="POST" action="{% url 'remove_favorite' favorite.product.product_id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="text-red-600 hover:text-red-800">
-                                            Remove
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr class="bg-green-200">
-                                <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any favorite products yet.</td>
-                            </tr>
-                        {% endif %}
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            {% if store_preferences %} {% for preference in store_preferences %}
+            <tr class="bg-blue-200 hover:bg-blue-300 transition-colors">
+              <td class="py-3 px-4">{{ preference.store.store_name }}</td>
+              <td class="py-3 px-4">{{ preference.store.store_address }}</td>
+              <td class="py-3 px-4">{{ preference.store.store_region }}</td>
+              <td class="py-3 px-4">
+                <form
+                  method="POST"
+                  action="{% url 'remove_store_preference' preference.store.store_id %}"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="text-red-600 hover:text-red-800">
+                    Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr class="bg-blue-200">
+              <td colspan="3" class="py-3 px-4 text-center text-red-500">
+                You haven't set any preferred stores yet.
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- product preference table-->
+    <div class="w-1/2 bg-white rounded-lg shadow-lg p-6 relative">
+      <h2 class="text-xl font-semibold mb-4 text-green-600">
+        Your Favorite Products
+      </h2>
+
+      <a
+        href="{% url 'product_list' %}"
+        class="absolute top-2 right-2 bg-green-500 text-white p-2 rounded-full hover:bg-green-600 focus:outline-none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </a>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-green-100 rounded-lg">
+          <thead class="bg-green-500 text-white">
+            <tr>
+              <th class="py-3 px-4 text-left">Product Name</th>
+              <th class="py-3 px-4 text-left">Category</th>
+              <th class="py-3 px-4 text-left">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div class="flex justify-end items-right mb-4">
+              <!-- Add More Favorites Button at the top-left -->
+              <a
+                href="{% url 'product_list' %}"
+                class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Add More Favorites
+              </a>
+            </div>
+
+            {% if favorite_products %} {% for favorite in favorite_products %}
+            <tr class="bg-green-200 hover:bg-green-300 transition-colors">
+              <td class="py-3 px-4">{{ favorite.product.product_name }}</td>
+              <td class="py-3 px-4">{{ favorite.product.product_category }}</td>
+              <td class="py-3 px-4">
+                <form
+                  method="POST"
+                  action="{% url 'remove_favorite' favorite.product.product_id %}"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="text-red-600 hover:text-red-800">
+                    Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr class="bg-green-200">
+              <td colspan="3" class="py-3 px-4 text-center text-red-500">
+                You haven't set any favorite products yet.
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
-<!-- #test  -->
