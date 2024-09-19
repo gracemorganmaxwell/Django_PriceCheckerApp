@@ -116,6 +116,19 @@ def product_list_view(request):
         products = products.order_by('-unit_price')
     # 'no_price' is the default, so products are not ordered
 
+     # Incorporate price trend for each product
+    product_data = []
+    for product in products:
+        latest_price_history = PriceHistory.objects.filter(product=product).order_by('-date').first()
+        price_trend = None
+        if latest_price_history:
+            price_trend = latest_price_history.get_price_trend()
+
+        product_data.append({
+            'product': product,
+            'price_trend': price_trend,
+        })
+
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         if product_id and product_id.isdigit():
