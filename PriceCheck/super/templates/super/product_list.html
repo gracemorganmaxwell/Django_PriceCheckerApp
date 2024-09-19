@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load cart_filters %}
-{% load cart_extras %} 
+{% load cart_extras %}
 
 {% block content %}
 <!-- Page Heading -->
@@ -63,14 +63,14 @@
 
 <!-- Product Cards Grid Layout -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-    {% for product in products %}
+    {% for item in page_obj %}
     <div class="relative bg-white shadow-lg rounded-lg overflow-hidden flex flex-col justify-between">
         
         <!-- Product Image Section -->
         <div class="relative h-48">
-            {% if product.product_image %}
-                <a href="{% url 'product_detail' product.product_id %}">
-                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-full w-full object-cover">
+            {% if item.product.product_image %}
+                <a href="{% url 'product_detail' item.product.product_id %}">
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="h-full w-full object-cover">
                 </a>
             {% else %}
                 <div class="bg-gray-200 h-full w-full flex items-center justify-center text-gray-500">
@@ -82,23 +82,37 @@
         <!-- Product Info Section -->
         <div class="p-6 flex-grow">
             <!-- Product Name as Link -->
-            <a href="{% url 'product_detail' product.product_id %}" class="text-blue-500 hover:underline">
-                {{ product.product_name }}
+            <a href="{% url 'product_detail' item.product.product_id %}" class="text-blue-500 hover:underline">
+                {{ item.product.product_name }}
             </a>
 
-            <!-- Product Category and Price -->
-            <p class="text-gray-700 mb-2"><strong>Category:</strong> {{ product.product_category }}</p>
-            <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ product.unit_price }}</p>
-        </div>
+           <!-- Product Category and Price -->
+           <p class="text-gray-700 mb-2"><strong>Category:</strong> {{ item.product.product_category }}</p>
+           <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ item.product.unit_price }}</p>
 
+           <!-- Price Trend: Display red or green arrow based on trend -->
+           <p>
+               {% if item.price_trend == 'up' %}
+                   <span style="color: red;">&#9650;</span> <!-- Red arrow up -->
+               {% elif item.price_trend == 'down' %}
+                   <span style="color: green;">&#9660;</span> <!-- Green arrow down -->
+               {% else %}
+                   <span>No change in price</span> <!-- No change -->
+               {% endif %}
+           </p>
+       </div>
+
+        
+
+        <!-- Favorite and Cart Buttons -->
         {% if user.is_authenticated %}
         <!-- Favorite Product Button (for authenticated users) -->
         <form method="POST" action="{% url 'product_list' %}">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+            <input type="hidden" name="product_id" value="{{ item.product.product_id }}">
 
             <button type="submit" class="absolute bottom-4 right-4 focus:outline-none">
-                {% if product.product_id in favorite_products %}
+                {% if item.product.product_id in favorite_products %}
                     <!-- Display Red Heart if Product is Favorited -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -113,28 +127,28 @@
         </form>
 
         <!-- Add to Cart Button -->
-        <form method="POST" action="{% url 'add_to_cart' product.product_id %}" class="absolute top-4 right-4">
+        <form method="POST" action="{% url 'add_to_cart' item.product.product_id %}" class="absolute top-4 right-4">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+            <input type="hidden" name="product_id" value="{{ item.product.product_id }}">
 
             <!-- Quantity Selector with Default 1 -->
-            {% if product.product_id in cart_items or product.product_id in cart %}
-                <input type="number" name="quantity_{{ product.product_id }}"
-                    value="{{ cart_items|dict_item:product.product_id|stringformat:'s'|default:1 }}"
+            {% if item.product.product_id in cart_items or item.product.product_id in cart %}
+                <input type="number" name="quantity_{{ item.product.product_id }}"
+                    value="{{ cart_items|dict_item:item.product.product_id|stringformat:'s'|default:1 }}"
                     min="1"
                     class="w-16 text-center border rounded"
-                    id="quantity_{{ product.product_id }}">
+                    id="quantity_{{ item.product.product_id }}">
             {% else %}
-                <input type="number" name="quantity_{{ product.product_id }}"
+                <input type="number" name="quantity_{{ item.product.product_id }}"
                     value="1"
                     min="1"
                     class="w-16 text-center border rounded"
-                    id="quantity_{{ product.product_id }}">
+                    id="quantity_{{ item.product.product_id }}">
             {% endif %}
 
             <!-- Submit Button for Add to Cart -->
             <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full text-white focus:outline-none 
-                {% if product.product_id in cart_items or product.product_id in cart %}
+                {% if item.product.product_id in cart_items or item.product.product_id in cart %}
                     bg-blue-500 hover:bg-blue-700
                 {% else %}
                     bg-green-500 hover:bg-green-700
@@ -149,6 +163,51 @@
 
     </div>
     {% endfor %}
+</div>
+<!-- Pagination Controls -->
+<div class="flex justify-center mt-6">
+    <nav aria-label="Pagination" class="inline-flex rounded-md shadow-sm">
+        <!-- First and Previous Links -->
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                &laquo; First
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">
+                Previous
+            </a>
+        {% else %}
+            <!-- Disabled First and Previous Links -->
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-l-md">
+                &laquo; First
+            </span>
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed">
+                Previous
+            </span>
+        {% endif %}
+
+        <!-- Current Page Number -->
+        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        <!-- Next and Last Links -->
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">
+                Next
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                Last &raquo;
+            </a>
+        {% else %}
+            <!-- Disabled Next and Last Links -->
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed">
+                Next
+            </span>
+            <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-r-md">
+                Last &raquo;
+            </span>
+        {% endif %}
+    </nav>
 </div>
 
 {% endblock %}

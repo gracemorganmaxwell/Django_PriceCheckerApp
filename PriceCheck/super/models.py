@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import redirect, render, get_object_or_404
-
+from decimal import Decimal
 
 class SupermarketChain(models.Model):
     NEW_WORLD = 'Nw'
@@ -90,6 +90,26 @@ class PriceHistory(models.Model):
         return str(self.product) + ": $" + str(self.price)
     def get_absolute_url(self):
         return reverse ("price_history_detail", kwargs= {"product_id": self.pk})
+    
+    def get_price_trend(self):
+        # Get the previous price history record (the second latest)
+        previous_price_history = PriceHistory.objects.filter(product=self.product).order_by('-date')[1:2]
+
+        # Ensure there is a previous price history entry
+        if previous_price_history.exists():
+            previous_price = previous_price_history[0].price
+
+            # Make sure both the current and previous prices are not None
+            if self.price is not None and previous_price is not None:
+                current_price = Decimal(self.price)
+                previous_price = Decimal(previous_price)
+
+                if current_price > previous_price:
+                    return 'up'
+                elif current_price < previous_price:
+                    return 'down'
+        return 'same'
+    
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
