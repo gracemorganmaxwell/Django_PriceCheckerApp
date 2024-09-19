@@ -2,15 +2,13 @@
 {% load cart_filters %}
 {% load cart_extras %} 
 
-
 {% block content %}
+<!-- Page Heading -->
 <h1 class="text-2xl font-bold mb-4">Product List</h1>
 
-
-
-<!-- Category dropdown menu and Search bar -->
+<!-- Search Form: Allows users to search by product name and filter by category and price -->
 <form method="GET" action="{% url 'product_list' %}" class="mb-4">
-    <!-- Search by product name -->
+    <!-- Search Input -->
     <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
     <input 
         type="text" 
@@ -21,7 +19,7 @@
         placeholder="Enter product name..."
     />
 
-    <!-- Category dropdown -->
+    <!-- Category Dropdown -->
     <label for="category" class="block text-lg mb-2">Select a Category:</label>
     <select 
         id="category" 
@@ -36,6 +34,7 @@
         {% endfor %}
     </select>
 
+    <!-- Sort by Price Dropdown -->
     <label for="sort" class="block text-lg mb-2 mt-4">Sort by Price:</label>
     <select 
         id="sort" 
@@ -47,11 +46,13 @@
         <option value="highest_price" {% if sort_by == 'highest_price' %}selected{% endif %}>Highest Price</option>
     </select>
     
-    <!-- Search button -->
+    <!-- Submit Button for the Search Form -->
     <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         Search
     </button>
 </form>
+
+<!-- Success Messages Display -->
 {% if messages %}
     <div class="fixed top-0 right-0 m-4 p-4 bg-green-500 text-white rounded shadow-md">
         {% for message in messages %}
@@ -60,13 +61,15 @@
     </div>
 {% endif %}
 
-<!-- Product cards -->
+<!-- Product Cards Grid Layout -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
     {% for product in products %}
     <div class="relative bg-white shadow-lg rounded-lg overflow-hidden flex flex-col justify-between">
+        
+        <!-- Product Image Section -->
         <div class="relative h-48">
             {% if product.product_image %}
-                <a href="{% url 'product_detail' products.product_id %}">
+                <a href="{% url 'product_detail' product.product_id %}">
                     <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-full w-full object-cover">
                 </a>
             {% else %}
@@ -75,29 +78,33 @@
                 </div>
             {% endif %}
         </div>
-        <div class="p-6 flex-grow">
 
+        <!-- Product Info Section -->
+        <div class="p-6 flex-grow">
+            <!-- Product Name as Link -->
             <a href="{% url 'product_detail' product.product_id %}" class="text-blue-500 hover:underline">
                 {{ product.product_name }}
             </a>
 
+            <!-- Product Category and Price -->
             <p class="text-gray-700 mb-2"><strong>Category:</strong> {{ product.product_category }}</p>
             <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ product.unit_price }}</p>
         </div>
 
-        <!-- Favorite product Button -->
+        {% if user.is_authenticated %}
+        <!-- Favorite Product Button (for authenticated users) -->
         <form method="POST" action="{% url 'product_list' %}">
             {% csrf_token %}
             <input type="hidden" name="product_id" value="{{ product.product_id }}">
-            
+
             <button type="submit" class="absolute bottom-4 right-4 focus:outline-none">
                 {% if product.product_id in favorite_products %}
-                  <!-- red heart for favorite item -->
+                    <!-- Display Red Heart if Product is Favorited -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                     </svg>
                 {% else %}
-                    <!-- clear heart -->
+                    <!-- Display Grey Heart if Not Favorited -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z" />
                     </svg>
@@ -105,32 +112,27 @@
             </button>
         </form>
 
-        <!-- Cart Button -->
+        <!-- Add to Cart Button -->
         <form method="POST" action="{% url 'add_to_cart' product.product_id %}" class="absolute top-4 right-4">
             {% csrf_token %}
             <input type="hidden" name="product_id" value="{{ product.product_id }}">
 
+            <!-- Quantity Selector with Default 1 -->
             {% if product.product_id in cart_items or product.product_id in cart %}
                 <input type="number" name="quantity_{{ product.product_id }}"
                     value="{{ cart_items|dict_item:product.product_id|stringformat:'s'|default:1 }}"
                     min="1"
                     class="w-16 text-center border rounded"
                     id="quantity_{{ product.product_id }}">
-                         
             {% else %}
-                <!-- If not in the cart, show default quantity of 1 -->
                 <input type="number" name="quantity_{{ product.product_id }}"
-                    value="0"
-                    min="0"
+                    value="1"
+                    min="1"
                     class="w-16 text-center border rounded"
                     id="quantity_{{ product.product_id }}">
             {% endif %}
 
-
-            <!-- #Second quantity counter printing on the screen -->
-            <!-- <span class="px-3">{{ cart|dict_item:product.product_id|stringformat:'s'|default:1 }}</span> -->
-
-            <!-- Check if product is in the cart -->
+            <!-- Submit Button for Add to Cart -->
             <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full text-white focus:outline-none 
                 {% if product.product_id in cart_items or product.product_id in cart %}
                     bg-blue-500 hover:bg-blue-700
@@ -140,28 +142,13 @@
                 <i class="fas fa-shopping-cart"></i>
             </button>
         </form>
-
-        
+        {% else %}
+        <!-- Prompt for Unauthenticated Users -->
+        <p class="text-gray-600 p-4">Please log in to add this product to your favorites or cart.</p>
+        {% endif %}
 
     </div>
     {% endfor %}
-
-
 </div>
 
 {% endblock %}
-<h1 class="text-2xl font-bold mb-4">Product List</h1>
-
-<!-- Category dropdown menu and Search bar -->
-<form method="GET" action="{% url 'product_list' %}" class="mb-4">
-    <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
-    <input type="text" id="search" name="q" value="{{ query }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-4" placeholder="Enter product name...">
-
-    <label for="category" class="block text-lg mb-2">Select a Category:</label>
-    <select id="category" name="category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-        <option value="">All Categories</option>
-        {% for category in categories %}
-            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
-        {% endfor %}
-               
-

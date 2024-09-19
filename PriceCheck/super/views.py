@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CustomUserCreationForm
 from django.db import IntegrityError
-from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem, PriceHistory, CartItem
+from .models import UserStorePreference, Store, FavoriteProduct, Product, CartItem, PriceHistory
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -13,43 +13,38 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 import json
 
-# from django.views import View
-
-#Homepage View
+# Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = 'super/home.html'
     login_url = '/login/'
     redirect_field_name = 'next'
 
-        # get users preferences
+    # Get user's preferences and favorite products
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            
             store_preferences = UserStorePreference.objects.filter(user=self.request.user)
             context['store_preferences'] = store_preferences
-            
             
             favorite_products = FavoriteProduct.objects.filter(user=self.request.user)
             context['favorite_products'] = favorite_products
 
         return context
 
+# Toggle favorite status of a product
 def toggle_favorite(request, product_id):
     product = get_object_or_404(Product, product_id=product_id)
     favorite_product, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
 
     if not created:
-        # If the product is already a favorite, remove it
         favorite_product.delete()
         messages.success(request, f"{product.product_name} was removed from your favorites.")
     else:
-        # If it's not a favorite, add it
         messages.success(request, f"{product.product_name} was added to your favorites.")
 
     return redirect('product_detail', product_id=product_id)
 
-#sign up view
+# User registration view
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -67,35 +62,29 @@ def register_view(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
-
-
+# Placeholder for store preference feature
 def placeholder_view(request):
     return HttpResponse("Store preference feature coming soon!")
 
-
-#store preference view
+# Store preference view
 @login_required
 def store_preference_view(request):
     store_preferences = UserStorePreference.objects.filter(user=request.user)
-    
     stores = Store.objects.all()
 
     if request.method == 'POST':
         store_id = request.POST.get('store')
         store = Store.objects.get(store_id=store_id)
-        user = request.user
-        
         UserStorePreference.objects.create(user=request.user, store=store)
         return redirect('store_preference')
     
     context = {
-        'store_preferences' : store_preferences,
-        'stores' : stores
+        'store_preferences': store_preferences,
+        'stores': stores
     }
     return render(request, 'super/store_preference.html', context)
 
-#product list view
-@login_required
+# Product list view with search, category filter, and sorting
 def product_list_view(request):
     categories = Product.objects.values_list('product_category', flat=True).distinct()
     query = request.GET.get('q', '')  
@@ -108,30 +97,21 @@ def product_list_view(request):
         products = products.filter(product_name__icontains=query)
     if selected_category:
         products = products.filter(product_category=selected_category)
-    
+
     # Apply sorting based on the 'sort_by' parameter
     if sort_by == 'lowest_price':
         products = products.order_by('unit_price')
     elif sort_by == 'highest_price':
         products = products.order_by('-unit_price')
-    # 'no_price' is the default, so products are not ordered
 
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        if product_id and product_id.isdigit():
-            product = get_object_or_404(Product, product_id=product_id)
-            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
-            if not created:
-                favorite.delete()
+    # Handle favorite products (for authenticated users)
+    favorite_products = []
+    if request.user.is_authenticated:
+        favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
 
-        return redirect('product_list')
-
-   
-    favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
-    cart = request.session.get('cart', {})
+    # Get cart items and session cart
     cart_items = CartItem.objects.filter(user=request.user).values_list('product__product_id', flat=True)
-
-    
+    cart = request.session.get('cart', {})
 
     context = {
         'products': products,
@@ -139,18 +119,17 @@ def product_list_view(request):
         'selected_category': selected_category,
         'query': query,  
         'favorite_products': favorite_products,
-        'cart_items': cart_items,  # Pass the cart items to the template
-        'cart': cart  # Pass session cart
+        'cart_items': cart_items,
+        'cart': cart
     }
     return render(request, 'super/product_list.html', context)
 
-
-    
+# Product detail view with price history and favorite functionality
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     price_history = PriceHistory.objects.filter(product=product).order_by('date')
 
-    # Prepare data for the chart
+    # Prepare data for the price history chart
     price_data = [float(history.price) for history in price_history]
     date_data = [history.date.strftime('%Y-%m-%d') for history in price_history]
 
@@ -161,32 +140,22 @@ def product_detail(request, product_id):
             favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
             if not created:
                 favorite.delete()
-
         return redirect('product_detail')
 
-   
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
-    
-    cart = request.session.get('cart', {})
-    # print("cart")
-    # print(cart)
     cart_items = CartItem.objects.filter(user=request.user).values_list('product_id', flat=True)
-    cart = CartItem(request)
-    print("cb")
-    print(cart_items)  # For debugging: check if this prints a dictionary
-    print(cart_items[2])
-    
+    cart = request.session.get('cart', {})
+
     return render(request, 'super/product_detail.html', {
         'product': product,
         'favorite_products': list(favorite_products),
-        'price_data': json.dumps(price_data),  # Convert to JSON
-        'date_data': json.dumps(date_data),    # Convert to JSON
+        'price_data': json.dumps(price_data),
+        'date_data': json.dumps(date_data),
         'cart_items': cart_items,
         'cart': cart
-
     })
 
-
+# Cart view to display items in the cart
 class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart = request.session.get('cart', {})
@@ -211,15 +180,11 @@ class CartView(LoginRequiredMixin, View):
         }
         return render(request, 'super/cart.html', context)
 
-    
+# Add product to cart
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, product_id=product_id)
     
-    # Get the current cart from session or initialize an empty cart
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
     cart = request.session.get('cart', {})
-
-    # Convert product_id to a string since session keys are stored as strings
     product_id_str = str(product_id)
 
     if product_id_str in cart:
@@ -228,20 +193,17 @@ def add_to_cart(request, product_id):
     else:
         cart[product_id_str] = {
             'name': product.product_name,
-            'price': str(product.unit_price),  # Store price as string to prevent JSON issues
+            'price': str(product.unit_price),  # Store price as string for JSON compatibility
             'quantity': 1
         }
         messages.success(request, f'{product.product_name} has been added to your cart.')
 
-    # Update the session cart
     request.session['cart'] = cart
-    return redirect('product_list')  # Redirect to cart page
+    return redirect('product_list')
 
-
-
+# Remove product from cart
 def remove_from_cart(request, item_id):
     cart = request.session.get('cart', {})
-
     product_id_str = str(item_id)
 
     if product_id_str in cart:
@@ -251,6 +213,7 @@ def remove_from_cart(request, item_id):
 
     return redirect('cart')
 
+# Update cart quantities
 def update_cart(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
@@ -264,6 +227,7 @@ def update_cart(request):
         request.session['cart'] = cart
         return redirect('cart')
 
+# Checkout view to handle cart checkout
 class CheckoutView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart_items = CartItem.objects.filter(user=request.user)
@@ -272,39 +236,4 @@ class CheckoutView(LoginRequiredMixin, View):
             'cart_items': cart_items,
             'total_amount': total_amount
         }
-        return render(request, 'super/checkout.html', context)
-
-    def post(self, request, *args, **kwargs):
-        # Handle the checkout process (e.g., creating an order, processing payment)
-        CartItem.objects.filter(user=request.user).delete()  # Clear the cart after checkout
-        return redirect('home')  # Redirect to a thank you page or home
-    
-def store_select(request, store_id):
-    store = get_object_or_404(Store, store_id=store_id)
-    all_stores = Store.objects.all()  # Fetch all stores to populate the dropdown
-    # all_stores = Store.objects.filter(chain_id=store.chain_id)
-    return render(request, 'super/store_select.html', {'store': store, 'all_stores': all_stores})
-
-from django.shortcuts import get_object_or_404, redirect
-from .models import FavoriteProduct
-
-def remove_favorite(request, product_id):
-    favorite = get_object_or_404(FavoriteProduct, user=request.user, product__product_id=product_id)
-    favorite.delete()
-    return redirect('home')  # Redirect to the homepage or another page as needed
-
-
-@login_required
-def remove_store_preference(request, store_id):
-    # Get the store preference object
-    preference = get_object_or_404(UserStorePreference, user=request.user, store_id=store_id)
-    
-    # Delete the store preference
-    preference.delete()
-    
-    # Redirect back to the store preferences page
-    return redirect('store_preference')
-
-def get_cart_items(self):
-    # Assuming cart_items is a dictionary of product_id and quantity
-    return {str(item['product_id']): item['quantity'] for item in self.cart}
+       
