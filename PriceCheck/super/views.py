@@ -118,7 +118,7 @@ def product_list_view(request):
 
     # Prefetch or bulk-fetch price history
     price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
-    
+
     # Create a dictionary to store the latest and previous prices
     price_data = {}
     for price_history in price_histories:
@@ -127,14 +127,16 @@ def product_list_view(request):
             price_data[product_id] = {'latest_price': price_history.price, 'previous_price': None}
         elif price_data[product_id]['previous_price'] is None:
             price_data[product_id]['previous_price'] = price_history.price
-    
-    # Calculate the price trend for each product
+
+    # Calculate the price trend for each product and print out the trend
     product_data = []
     for product in products:
         trend = None
         if product.product_id in price_data:
             current = price_data[product.product_id]['latest_price']
             previous = price_data[product.product_id]['previous_price']
+            print(f"Product: {product.product_name}, Current Price: {current}, Previous Price: {previous}")  # Debugging
+
             if previous is not None and current is not None:
                 if current > previous:
                     trend = 'up'
@@ -142,6 +144,8 @@ def product_list_view(request):
                     trend = 'down'
                 else:
                     trend = 'same'
+            print(f"Trend for {product.product_name}: {trend}")  # Debugging
+        
         product_data.append({
             'product': product,
             'price_trend': trend,
