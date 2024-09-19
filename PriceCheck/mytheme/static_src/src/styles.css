@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.message-container {
+        position: fixed;
+        top: 0;
+        right: 0;
+        margin: 1rem;
+        padding: 1rem;
+        background-color: #28a745; /* Success message color */
+        color: white;
+        border-radius: 0.5rem;
+        z-index: 1000;
+    }

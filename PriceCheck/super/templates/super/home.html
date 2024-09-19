@@ -32,15 +32,32 @@
                             <th class="py-3 px-4 text-left">Store Name</th>
                             <th class="py-3 px-4 text-left">Address</th>
                             <th class="py-3 px-4 text-left">Region</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
+                        <div class="flex justify-end items-right mb-4">
+                            <!-- Add More Favorites Button at the top-left -->
+                            <a href="{% url 'store_preference' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add More Stores
+                            </a>
+                        </div>
+                        
+
                         {% if store_preferences %}
                             {% for preference in store_preferences %}
                             <tr class="bg-blue-200 hover:bg-blue-300 transition-colors">
                                 <td class="py-3 px-4">{{ preference.store.store_name }}</td>
                                 <td class="py-3 px-4">{{ preference.store.store_address }}</td>
                                 <td class="py-3 px-4">{{ preference.store.store_region }}</td>
+                                <td class="py-3 px-4">
+                                    <form method="POST" action="{% url 'remove_store_preference' preference.store.store_id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -75,12 +92,26 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <div class="flex justify-end items-right mb-4">
+                            <!-- Add More Favorites Button at the top-left -->
+                            <a href="{% url 'product_list' %}" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add More Favorites
+                            </a>
+                        </div>
+                        
                         {% if favorite_products %}
                             {% for favorite in favorite_products %}
                             <tr class="bg-green-200 hover:bg-green-300 transition-colors">
                                 <td class="py-3 px-4">{{ favorite.product.product_name }}</td>
                                 <td class="py-3 px-4">{{ favorite.product.product_category }}</td>
-                                <td class="py-3 px-4">${{ favorite.product.unit_price }}</td>
+                                <td class="py-3 px-4">
+                                    <form method="POST" action="{% url 'remove_favorite' favorite.product.product_id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -88,6 +119,7 @@
                                 <td colspan="3" class="py-3 px-4 text-center text-red-500">You haven't set any favorite products yet.</td>
                             </tr>
                         {% endif %}
+
                     </tbody>
                 </table>
             </div>

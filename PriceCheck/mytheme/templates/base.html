@@ -44,6 +44,15 @@
             </div>
         </div>
     </nav>
+    {% if messages %}
+    <div class="fixed top-0 right-0 m-4">
+        {% for message in messages %}
+            <div class="bg-green-500 text-white font-bold rounded-lg px-4 py-2 mb-2">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
     <!-- Main Content Area -->
     <main class="flex-grow container mx-auto p-6">

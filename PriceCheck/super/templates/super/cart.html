@@ -4,38 +4,53 @@
     <h1 class="text-3xl font-bold mb-6 text-center">Shopping Cart</h1>
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
         {% if cart_items %}
-            <table class="w-full border-collapse">
-                <thead>
-                    <tr class="border-b">
-                        <th class="py-3 px-4 text-left">Product</th>
-                        <th class="py-3 px-4 text-left">Price</th>
-                        <th class="py-3 px-4 text-left">Quantity</th>
-                        <th class="py-3 px-4 text-left">Total</th>
-                        <th class="py-3 px-4 text-left"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
+            <form method="POST" action="{% url 'update_cart' %}">
+                {% csrf_token %}
+                <table class="w-full border-collapse">
+                    <thead>
                         <tr class="border-b">
-                            <td class="py-3 px-4">{{ item.product_name }}</td>
-                            <td class="py-3 px-4">${{ item.unit_price }}</td>
-                            <td class="py-3 px-4">{{ item.quantity }}</td>
-                            <td class="py-3 px-4">${{ item.total_price }}</td>
-                            <td class="py-3 px-4">
-                                <form method="POST" action="{% url 'remove_from_cart' item.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="text-red-600 hover:text-red-800">
-                                        Remove
-                                    </button>
-                                </form>
-                            </td>
+                            <th class="py-3 px-4 text-left">Product ID</th>
+                            <th class="py-3 px-4 text-left">Product</th>
+                            <th class="py-3 px-4 text-left">Price</th>
+                            <th class="py-3 px-4 text-left">Quantity</th>
+                            <th class="py-3 px-4 text-left">Total</th>
+                            <th class="py-3 px-4 text-left"></th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="mt-6 text-right">
-                <h2 class="text-xl font-semibold">Total: ${{ total_amount }}</h2>
-            </div>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr class="border-b">
+                                <td class="py-3 px-4">{{ item.product.product_id }}</td>
+                                <td class="py-3 px-4">{{ item.product.product_name }}</td>
+                                <td class="py-3 px-4">${{ item.product.unit_price }}</td>
+                                <td class="py-3 px-4">
+                                    <input type="number" name="quantity_{{ item.product.product_id }}" 
+                                           value="{{ item.quantity }}" 
+                                           min="1" 
+                                           class="w-16 text-center border rounded">
+                                </td>
+                                <td class="py-3 px-4">${{ item.total_price }}</td>
+                                <td class="py-3 px-4">
+                                    <form method="POST" action="{% url 'remove_from_cart' item.product.product_id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mt-6 text-right">
+                    <h2 class="text-xl font-semibold">Total: ${{ total_amount|floatformat:2 }}</h2>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                        Update Cart
+                    </button>
+                </div>
+            </form>
             <div class="mt-6 flex justify-end">
                 <a href="{% url 'checkout' %}" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
                     Proceed to Checkout
@@ -44,5 +59,10 @@
         {% else %}
             <p class="text-center text-gray-700">Your cart is empty.</p>
         {% endif %}
+        <!-- Back to Product List Button -->
+        <a href="{% url 'product_list' %}" class="inline-block mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Back to Product List
+        </a>
+        
     </div>
 {% endblock %}
