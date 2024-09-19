@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "chart.js": "^4.4.4",
     "tailwindcss": "^3.4.10"
   }
 }

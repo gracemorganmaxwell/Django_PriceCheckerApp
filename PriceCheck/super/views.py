@@ -174,7 +174,12 @@ def product_detail(request, product_id):
     cart = CartItem(request)
     print("cb")
     print(cart_items)  # For debugging: check if this prints a dictionary
-    print(cart_items[2])
+    print(list(cart_items))  # For debugging: prints all cart items
+
+    if len(cart_items) > 2:
+        print(cart_items[2])  # Safely accessing the third cart item
+    else:
+        print("Less than 3 items in the cart.")
     
     return render(request, 'super/product_detail.html', {
         'product': product,
