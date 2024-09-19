@@ -1,21 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <div class="signup-container">
-        <h1>Sign Up</h1>
-        <form method="post">
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-lg bg-white rounded-lg shadow-lg p-10">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Create an Account</h1>
+        
+        <form method="post" class="space-y-6">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Sign Up</button>
+            
+            
+            <div class="space-y-4">
+                {% for field in form %}
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        <style>
+                            input, select, textarea {
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ccc;
+                                border-radius: 5px;
+                            }
+                            input:focus, select:focus, textarea:focus {
+                                outline: none;
+                                border-color: #4A90E2;
+                                box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+                            }
+                        </style>
+                        {% if field.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ field.errors }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+           
+            <button type="submit" class="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 transition duration-300">
+                Sign Up
+            </button>
         </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
+        
+        
+        <div class="mt-10 text-center">
+            <p class="text-gray-600">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="text-blue-500 hover:underline">Log in</a>
+            </p>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

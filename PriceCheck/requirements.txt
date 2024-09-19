@@ -1,0 +1,15 @@
+asgiref==3.8.1
+cffi==1.17.0
+cryptography==43.0.0
+Django==5.1
+django-browser-reload==1.15.0
+django-debug-toolbar==4.4.6
+django-tailwind==3.8.0
+pillow==10.4.0
+pycparser==2.22
+PyMySQL==1.1.1
+python-dotenv==1.0.0
+pywatchman==2.0.0
+sqlparse==0.5.1
+typing_extensions==4.12.2
+tzdata==2024.1

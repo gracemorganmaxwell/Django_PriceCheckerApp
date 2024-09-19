@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mx-auto mt-8">
+    <h1 class="text-3xl font-bold mb-4">Your Store Preferences</h1>
+    
+    <!-- Supermarket Images Section -->
+    <div class="flex justify-between mb-8">
+        <!-- Pak'nSave -->
+        <a href="{% url 'store_select' 1 %}">
+            <img src="{% static 'images/paknsave.png' %}" alt="Pak'nSave" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
+        <a href="{% url 'store_select' 2 %}">
+            <img src="{% static 'images/New_World.png' %}" alt="New World" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
+        <a href="{% url 'store_select' 3 %}">
+            <img src="{% static 'images/Woolworths.png' %}" alt="Woolworths" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>    
+        <a href="{% url 'store_select' 5 %}">
+        <img src="{% static 'images/four_square.png' %}" alt="Four Square" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>    
+        <a href="{% url 'store_select' 4 %}">    
+            <img src="{% static 'images/warehouse.png' %}" alt="Warehouse" class="w-40 h-40 rounded-lg shadow-lg">
+        </a>
+    </div>
+   
+    <!-- Store Preferences Table -->
+    <div class="overflow-x-auto w-full">
+        <table class="min-w-full bg-blue-500 text-left rounded-lg shadow-lg mb-4">
+            <thead class="bg-blue-700 text-white">
+                <tr>
+                    <th class="py-2 px-4">Store Name</th>
+                    <th class="py-2 px-4">Address</th>
+                    <th class="py-2 px-4">Region</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if store_preferences %}
+                    {% for preference in store_preferences %}
+                    <tr class="bg-blue-300 border-b border-gray-300">
+                        <td class="py-2 px-4">{{ preference.store.store_name }}</td>
+                        <td class="py-2 px-4">{{ preference.store.store_address }}</td>
+                        <td class="py-2 px-4">{{ preference.store.store_region }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="bg-blue-300">
+                        <td colspan="3" class="py-2 px-4 text-center text-red-500">You haven't set any preferred stores yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Store Preference Form -->
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="store" class="block text-gray-700 text-sm font-bold mb-2">Add a Store Preference:</label>
+            <select id="store" name="store" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                {% for store in stores %}
+                    <option value="{{ store.store_id }}">{{ store.store_name }} - {{ store.store_region }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                Add Store
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
