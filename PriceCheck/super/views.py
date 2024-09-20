@@ -14,7 +14,6 @@ from django.contrib import messages
 import json
 from django.core.paginator import Paginator
 
-# from django.views import View
 
 #Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -198,13 +197,8 @@ def product_detail(request, product_id):
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
     
     cart = request.session.get('cart', {})
-    # print("cart")
-    # print(cart)
     cart_items = CartItem.objects.filter(user=request.user).values_list('product_id', flat=True)
     cart = CartItem(request)
-    print("cb")
-    print(cart_items)  # For debugging: check if this prints a dictionary
-    print(list(cart_items))  # For debugging: prints all cart items
 
     if len(cart_items) > 2:
         print(cart_items[2])  # Safely accessing the third cart item
