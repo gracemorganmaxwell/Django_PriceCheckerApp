@@ -151,6 +151,8 @@ def product_list_view(request):
             'price_trend': trend,
         })
 
+    
+
     # Now apply pagination to the constructed 'product_data'
     paginator = Paginator(product_data, 10)  # Show 10 products per page
     page_number = request.GET.get('page')
@@ -169,6 +171,7 @@ def product_list_view(request):
         'cart_items': cart_items,  # Pass the cart items to the template
         'cart': request.session.get('cart', {}),  # Pass session cart
     }
+
     return render(request, 'super/product_list.html', context)
 
 

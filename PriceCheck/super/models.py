@@ -48,20 +48,11 @@ class Store(models.Model):
         return reverse ("store_detail", kwargs= {"store_id": self.pk})
 
 
-# class Product(models.Model):
-#     name = models.CharField(max_length=255)
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
-#     description = models.TextField(blank=True, null=True)
-#     # Add other fields as needed
-
-#     def __str__(self):
-#         return self.name
-
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=100)
     product_size = models.CharField(max_length=10)
-    product_image = models.ImageField(upload_to='products/', null=True, blank=True)
+    product_image = models.URLField(null=True, blank=True)
     product_category = models.CharField(max_length=100)
     product_source_site = models.TextField()
     unit_type = models.CharField(max_length=10)

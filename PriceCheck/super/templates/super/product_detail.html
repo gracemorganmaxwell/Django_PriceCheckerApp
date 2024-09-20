@@ -12,13 +12,17 @@
 <div class="container mx-auto p-8">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row">
         <div class="relative h-64 md:h-auto md:w-1/2">
-            {% if product.product_image %}
-                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-full w-full object-cover">
-            {% else %}
-                <div class="bg-gray-200 h-full w-full flex items-center justify-center text-gray-500">
-                    No Image Available
-                </div>
-            {% endif %}
+            
+            <div class="relative h-48">
+                {% if item.product.product_image %}
+                        <img src="{{ item.product.product_image }}" alt="{{ item.product.product_name }}" class="h-full w-full object-cover">
+                    </a>
+                {% else %}
+                    <div class="bg-gray-200 h-full w-full flex items-center justify-center text-gray-500">
+                        No Image
+                    </div>
+                {% endif %}
+            </div>
         </div>
         <div class="p-6 md:w-1/2">
             <h1 class="text-2xl font-bold mb-4 text-gray-900">{{ product.product_name }}</h1>

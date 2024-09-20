@@ -5,6 +5,8 @@ from django.contrib.auth import views as auth_views
 from .views import HomePageView, store_preference_view, product_list_view, product_detail, CartView, CheckoutView, store_select, add_to_cart, remove_from_cart, update_cart, remove_store_preference
 from .forms import EmailOrUsernameLoginForm
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 
@@ -31,4 +33,4 @@ urlpatterns = [
     path('toggle_favorite/<int:product_id>/', views.toggle_favorite, name='toggle_favorite'),
     
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -67,10 +67,11 @@
     <div class="relative bg-white shadow-lg rounded-lg overflow-hidden flex flex-col justify-between">
         
         <!-- Product Image Section -->
+
         <div class="relative h-48">
             {% if item.product.product_image %}
                 <a href="{% url 'product_detail' item.product.product_id %}">
-                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="h-full w-full object-cover">
+                    <img src="{{ item.product.product_image }}" alt="{{ item.product.product_name }}" class="h-full w-full object-cover">
                 </a>
             {% else %}
                 <div class="bg-gray-200 h-full w-full flex items-center justify-center text-gray-500">
