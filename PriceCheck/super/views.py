@@ -119,13 +119,7 @@ def product_list_view(request):
     if selected_category:
         products = products.filter(product_category=selected_category)
     
-    # Apply sorting based on the 'sort_by' parameter
-    if sort_by == 'lowest_price':
-        products = products.order_by('unit_price')
-    elif sort_by == 'highest_price':
-        products = products.order_by('-unit_price')
-    elif sort_by == 'no_price':
-        products = products.order_by('unit_price')  # Default sorting
+    
 
     # Prefetch or bulk-fetch price history
     price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
@@ -163,6 +157,12 @@ def product_list_view(request):
             'price_trend': trend,
             'latest_price': price_data[product.product_code]['latest_price'],
         })
+
+    # Apply sorting based on the 'sort_by' parameter
+    if sort_by == 'lowest_price':
+        product_data = sorted(product_data, key=lambda x: x['latest_price'])
+    elif sort_by == 'highest_price':
+        product_data = sorted(product_data, key=lambda x: x['latest_price'], reverse=True)
     
 
     
