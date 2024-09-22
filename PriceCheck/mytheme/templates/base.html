@@ -44,9 +44,11 @@
             </div>
         </div>
     </nav>
+
     {% if messages %}
     <div id="message-container" class="fixed top-0 right-0 m-4 z-50">
         {% for message in messages %}
+
         <div class="px-6 py-3 rounded relative mb-2 transition-opacity duration-300 ease-in-out opacity-100
                     {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'info' %}bg-blue-500{% elif message.tags == 'warning' %}bg-yellow-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-gray-500{% endif %} 
                     text-white flex justify-between items-center" 
@@ -116,5 +118,32 @@
             &copy; 2024 Supermarket Price Comparison
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                const messages = messageContainer.querySelectorAll('div');
+                
+                messages.forEach(message => {
+                    const closeBtn = message.querySelector('.close-message');
+                    closeBtn.addEventListener('click', () => {
+                        message.remove();
+                        if (messageContainer.children.length === 0) {
+                            messageContainer.remove();
+                        }
+                    });
+
+                    // Auto-close after 10 seconds
+                    setTimeout(() => {
+                        message.remove();
+                        if (messageContainer.children.length === 0) {
+                            messageContainer.remove();
+                        }
+                    }, 10000);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
