@@ -114,6 +114,8 @@ def product_list_view(request):
         products = products.order_by('unit_price')
     elif sort_by == 'highest_price':
         products = products.order_by('-unit_price')
+    elif sort_by == 'no_price':
+        products = products.order_by('unit_price')  # Default sorting
 
     # Prefetch or bulk-fetch price history
     price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
@@ -169,6 +171,7 @@ def product_list_view(request):
         'favorite_products': favorite_products,
         'cart_items': cart_items,  # Pass the cart items to the template
         'cart': request.session.get('cart', {}),  # Pass session cart
+        'sort_by': sort_by,
     }
 
     return render(request, 'super/product_list.html', context)
