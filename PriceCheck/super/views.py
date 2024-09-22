@@ -15,7 +15,7 @@ import json
 from django.core.paginator import Paginator
 from django.urls import reverse
 from urllib.parse import urlparse, urlunparse
-
+from datetime import datetime
 
 #Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -97,6 +97,16 @@ def store_preference_view(request):
 #product list view
 @login_required
 def product_list_view(request):
+    # If it's a POST request, handle the form submission for adding to Favorites
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        if product_id and product_id.isdigit():
+            product = get_object_or_404(Product, product_id=product_id)
+            favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+            if not created:
+                favorite.delete()
+
+
     categories = Product.objects.values_list('product_category', flat=True).distinct()
     query = request.GET.get('q', '')  
     selected_category = request.GET.get('category', '') 
@@ -128,15 +138,17 @@ def product_list_view(request):
             price_data[product_id] = {'latest_price': price_history.price, 'previous_price': None}
         elif price_data[product_id]['previous_price'] is None:
             price_data[product_id]['previous_price'] = price_history.price
+    
 
     # Calculate the price trend for each product and print out the trend
     product_data = []
     for product in products:
         trend = None
-        if product.product_id in price_data:
-            current = price_data[product.product_id]['latest_price']
-            previous = price_data[product.product_id]['previous_price']
-            print(f"Product: {product.product_name}, Current Price: {current}, Previous Price: {previous}")  # Debugging
+        if product.product_code not in price_data:
+            continue
+        if product.product_code in price_data:
+            current = price_data[product.product_code]['latest_price']
+            previous = price_data[product.product_code]['previous_price']
 
             if previous is not None and current is not None:
                 if current > previous:
@@ -145,12 +157,13 @@ def product_list_view(request):
                     trend = 'down'
                 else:
                     trend = 'same'
-            print(f"Trend for {product.product_name}: {trend}")  # Debugging
         
         product_data.append({
             'product': product,
             'price_trend': trend,
+            'latest_price': price_data[product.product_code]['latest_price'],
         })
+    
 
     
 
@@ -193,10 +206,7 @@ def product_detail(request, product_id):
             favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
             if not created:
                 favorite.delete()
-
-        return redirect('product_detail')
-
-   
+    print(price_history)
     favorite_products = FavoriteProduct.objects.filter(user=request.user).values_list('product__product_id', flat=True)
     
     cart = request.session.get('cart', {})
@@ -213,6 +223,7 @@ def product_detail(request, product_id):
         'favorite_products': list(favorite_products),
         'price_data': json.dumps(price_data),  # Convert to JSON
         'date_data': json.dumps(date_data),    # Convert to JSON
+        'latest_price': price_history.last().price,
         'cart_items': cart_items,
         'cart': cart
 
@@ -225,15 +236,56 @@ class CartView(LoginRequiredMixin, View):
         cart_items = []
         total_amount = 0
 
+        products = []
+
         for product_id, details in cart.items():
             product = get_object_or_404(Product, product_id=int(product_id))
             quantity = details['quantity']
-            price = details.get('price')
+            # price = details.get('price')
             
+            # if price is not None:
+            #     try:
+            #         price = float(price)
+            #         total_price = price * quantity
+            #         total_amount += total_price
+            #     except ValueError:
+            #         # Handle invalid price format
+            #         price = 0
+            #         total_price = 0
+            # else:
+            #     # Handle case where price is None
+            #     price = 0
+            #     total_price = 0
+
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                # 'price': price,
+                # 'total_price': total_price
+            })
+            products.append(product)
+
+        # Prefetch or bulk-fetch price history
+        price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
+
+        # Create a dictionary to store the latest and previous prices
+        price_data = {}
+        for price_history in price_histories:
+            product_id = price_history.product_id
+            if product_id not in price_data:
+                price_data[product_id] = {'latest_price': price_history.price, 'previous_price': None}
+            elif price_data[product_id]['previous_price'] is None:
+                price_data[product_id]['previous_price'] = price_history.price
+        
+
+        # Calculate the price trend for each product and print out the trend
+        for cart_item in cart_items:
+            price = price_data[cart_item['product'].product_code]['latest_price']
+            total_price = 0
+
             if price is not None:
                 try:
-                    price = float(price)
-                    total_price = price * quantity
+                    total_price = price * int(quantity)
                     total_amount += total_price
                 except ValueError:
                     # Handle invalid price format
@@ -244,12 +296,10 @@ class CartView(LoginRequiredMixin, View):
                 price = 0
                 total_price = 0
 
-            cart_items.append({
-                'product': product,
-                'quantity': quantity,
-                'price': price,
-                'total_price': total_price
-            })
+            cart_item['price'] = price
+            cart_item['total_price'] = total_price
+
+        
 
         context = {
             'cart_items': cart_items,
@@ -275,11 +325,13 @@ def add_to_cart(request, product_id):
         # If the product is already in the cart, increment its quantity
         cart[product_id_str]['quantity'] += 1
     else:
+        # Get Qty from Input and if not exist set to 1
+        qty = request.POST.get('quantity', 1)
         # If it's a new product, add it to the cart
         cart[product_id_str] = {
             'name': product.product_name,
             'price': str(product.unit_price),  # Make sure this is a valid float string + store as a string for valid Json  
-            'quantity': 1
+            'quantity': qty
         }
 
         messages.info(request, f'{product.product_name} has been added to your cart.')

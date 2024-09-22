@@ -91,7 +91,7 @@
 
            <!-- Product Category and Price -->
            <p class="text-gray-700 mb-2"><strong>Category:</strong> {{ item.product.product_category }}</p>
-           <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ item.product.unit_price }}</p>
+           <p class="text-gray-700 mb-4"><strong>Price:</strong> ${{ item.latest_price }}</p>
 
            <!-- Price Trend: Display red or green arrow based on trend -->
            <p>
@@ -134,13 +134,9 @@
 
             <!-- Quantity Selector with Default 1 -->
             {% if item.product.product_id in cart_items or item.product.product_id in cart %}
-                <input type="number" name="quantity_{{ item.product.product_id }}"
-                    value="{{ cart_items|dict_item:item.product.product_id|stringformat:'s'|default:1 }}"
-                    min="1"
-                    class="w-16 text-center border rounded"
-                    id="quantity_{{ item.product.product_id }}">
+                
             {% else %}
-                <input type="number" name="quantity_{{ item.product.product_id }}"
+                <input type="number" name="quantity"
                     value="1"
                     min="1"
                     class="w-16 text-center border rounded"
