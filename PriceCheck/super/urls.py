@@ -7,8 +7,7 @@ from .forms import EmailOrUsernameLoginForm
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-
-
+from .views import privacy_policy_view
 
 urlpatterns = [
    path('signup/', register_view, name='signup' ),
@@ -31,6 +30,5 @@ urlpatterns = [
     path('remove_store_preference/<int:store_id>/', remove_store_preference, name='remove_store_preference'),
     path('product/<int:product_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('toggle_favorite/<int:product_id>/', views.toggle_favorite, name='toggle_favorite'),
-    
-
+    path('privacy-policy/', privacy_policy_view, name='privacy_policy'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
