@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block content %}
+<div class="container mx-auto my-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">PriceCheck Security and Privacy Policy</h1>
+    
+    <div class="prose max-w-none">
+        <p><strong>Last updated:</strong> {% now "F j, Y" %}</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">1. Introduction</h2>
+        <p>PriceCheck ("we", "our", or "us") is committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, disclose, and safeguard your information when you use our price comparison service.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">2. Information We Collect</h2>
+        <p>We collect the following types of information:</p>
+        <ul class="list-disc pl-6">
+            <li>Personal Information: Name, email address, and login credentials.</li>
+            <li>Usage Data: Information on how you interact with our app, including search queries and product preferences.</li>
+        </ul>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">3. How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul class="list-disc pl-6">
+            <li>Provide and improve our price comparison service</li>
+            <li>Analyze usage patterns to enhance our app's functionality</li>
+        </ul>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">4. Data Storage and Security</h2>
+        <p>Your data is stored securely within New Zealand. We implement industry-standard security measures to protect against unauthorized access, alteration, disclosure, or destruction of your personal information.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">5. Sharing of Information</h2>
+        <p>We do not sell your personal information. We may share anonymized, aggregated data with our partner stores for analytical purposes.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">6. Your Rights</h2>
+        <p>Under the Privacy Act 2020, you have the right to:</p>
+        <ul class="list-disc pl-6">
+            <li>Access your personal information</li>
+            <li>Request correction of your personal information</li>
+            <li>Request deletion of your account and associated data</li>
+        </ul>
+        <p>To exercise these rights, please contact us at [contact email].</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">7. Cookies and Tracking</h2>
+        <p>We use cookies to enhance your browsing experience and analyze app usage. You can manage cookie preferences through your browser settings.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">8. Changes to This Policy</h2>
+        <p>We may update this policy from time to time. We will notify you of any significant changes via email or through the app.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">9. Contact Us</h2>
+        <p>If you have any questions about this policy, please contact us at hello@pricecheck.co.nz.</p>
+
+        <h2 class="text-2xl font-semibold mt-6 mb-4">10. Compliance with New Zealand Law</h2>
+        <p>This policy is designed to comply with the Privacy Act 2020 and other relevant New Zealand laws. Any disputes will be resolved under New Zealand law.</p>
+    </div>
+</div>
+{% endblock %}

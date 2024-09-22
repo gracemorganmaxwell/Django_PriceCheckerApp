@@ -42,9 +42,11 @@ def toggle_favorite(request, product_id):
     favorite_product, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
 
     if not created:
+        # If the product is already a favorite, remove it
         favorite_product.delete()
         messages.info(request, f"{product.product_name} was removed from your favorites.")
     else:
+        # If it's not a favorite, add it
         messages.info(request, f"{product.product_name} was added to your favorites.")
 
     return redirect('product_detail', product_id=product_id)
@@ -426,3 +428,6 @@ def remove_store_preference(request, store_id):
 def get_cart_items(self):
     # Assuming cart_items is a dictionary of product_id and quantity
     return {str(item['product_id']): item['quantity'] for item in self.cart}
+
+def privacy_policy_view(request):
+    return render(request, 'super/privacy_policy.html')
