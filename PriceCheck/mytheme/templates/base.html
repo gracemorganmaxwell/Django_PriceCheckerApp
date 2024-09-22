@@ -45,14 +45,49 @@
         </div>
     </nav>
     {% if messages %}
-    <div class="fixed top-0 right-0 m-4">
+    <div id="message-container" class="fixed top-0 right-0 m-4 z-50">
         {% for message in messages %}
-            <div class="bg-green-500 text-white font-bold rounded-lg px-4 py-2 mb-2">
-                {{ message }}
-            </div>
+        <div class="px-6 py-3 rounded relative mb-2 transition-opacity duration-300 ease-in-out opacity-100
+                    {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'info' %}bg-blue-500{% elif message.tags == 'warning' %}bg-yellow-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-gray-500{% endif %} 
+                    text-white flex justify-between items-center" 
+             role="alert">
+            <span class="block sm:inline mr-8">{{ message }}</span>
+            <button class="close-message">
+                <svg class="fill-current h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                </svg>
+            </button>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.close-message')) {
+                    const message = e.target.closest('[role="alert"]');
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 300);
+                }
+            });
+
+            const messages = messageContainer.querySelectorAll('[role="alert"]');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
+        }
+    });
+    </script>
+    {% endif %}
 
     <!-- Main Content Area -->
     <main class="flex-grow container mx-auto p-6">

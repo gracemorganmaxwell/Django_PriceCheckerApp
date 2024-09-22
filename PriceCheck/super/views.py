@@ -13,6 +13,8 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 import json
 from django.core.paginator import Paginator
+from django.urls import reverse
+from urllib.parse import urlparse, urlunparse
 
 
 #Homepage View
@@ -40,12 +42,10 @@ def toggle_favorite(request, product_id):
     favorite_product, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
 
     if not created:
-        # If the product is already a favorite, remove it
         favorite_product.delete()
-        messages.success(request, f"{product.product_name} was removed from your favorites.")
+        messages.info(request, f"{product.product_name} was removed from your favorites.")
     else:
-        # If it's not a favorite, add it
-        messages.success(request, f"{product.product_name} was added to your favorites.")
+        messages.info(request, f"{product.product_name} was added to your favorites.")
 
     return redirect('product_detail', product_id=product_id)
 
@@ -228,12 +228,26 @@ class CartView(LoginRequiredMixin, View):
         for product_id, details in cart.items():
             product = get_object_or_404(Product, product_id=int(product_id))
             quantity = details['quantity']
-            total_price = float(details['price']) * quantity
-            total_amount += total_price
+            price = details.get('price')
+            
+            if price is not None:
+                try:
+                    price = float(price)
+                    total_price = price * quantity
+                    total_amount += total_price
+                except ValueError:
+                    # Handle invalid price format
+                    price = 0
+                    total_price = 0
+            else:
+                # Handle case where price is None
+                price = 0
+                total_price = 0
 
             cart_items.append({
                 'product': product,
                 'quantity': quantity,
+                'price': price,
                 'total_price': total_price
             })
 
@@ -260,14 +274,28 @@ def add_to_cart(request, product_id):
     else:
         cart[product_id_str] = {
             'name': product.product_name,
-            'price': str(product.unit_price),  # Store price as string to prevent JSON issues
+            'price': str(product.unit_price),  # Make sure this is a valid float string + store as a string for valid Json  
             'quantity': 1
         }
-        messages.success(request, f'{product.product_name} has been added to your cart.')
+        messages.info(request, f'{product.product_name} has been added to your cart.')
 
     # Update the session cart
     request.session['cart'] = cart
-    return redirect('product_list')  # Redirect to cart page
+
+    # Get the referer URL
+    referer = request.META.get('HTTP_REFERER')
+    
+    if referer:
+        # Parse the referer URL
+        parsed_url = urlparse(referer)
+        
+        # Construct the redirect URL, preserving the query parameters
+        redirect_url = urlunparse((parsed_url.scheme, parsed_url.netloc, reverse('product_list'), '', parsed_url.query, ''))
+        
+        return redirect(redirect_url)
+    else:
+        # If there's no referer, redirect to the product list without parameters
+        return redirect('product_list')
 
 
 
@@ -279,7 +307,7 @@ def remove_from_cart(request, item_id):
     if product_id_str in cart:
         del cart[product_id_str]
         request.session['cart'] = cart
-        messages.success(request, 'Item removed from cart.')
+        messages.info(request, 'Item removed from cart.')
 
     return redirect('cart')
 
