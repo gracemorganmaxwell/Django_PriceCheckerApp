@@ -14,7 +14,7 @@
                             <th class="py-3 px-4 text-left">Price</th>
                             <th class="py-3 px-4 text-left">Quantity</th>
                             <th class="py-3 px-4 text-left">Total</th>
-                            <th class="py-3 px-4 text-left"></th>
+                            <th class="py-3 px-4 text-left">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -22,18 +22,18 @@
                             <tr class="border-b">
                                 <td class="py-3 px-4">{{ item.product.product_id }}</td>
                                 <td class="py-3 px-4">{{ item.product.product_name }}</td>
-                                <td class="py-3 px-4">${{ item.product.unit_price }}</td>
+                                <td class="py-3 px-4">${{ item.product.unit_price|floatformat:2 }}</td>
                                 <td class="py-3 px-4">
                                     <input type="number" name="quantity_{{ item.product.product_id }}" 
                                            value="{{ item.quantity }}" 
                                            min="1" 
-                                           class="w-16 text-center border rounded">
+                                           class="w-16 px-2 py-1 border rounded">
                                 </td>
-                                <td class="py-3 px-4">${{ item.total_price }}</td>
+                                <td class="py-3 px-4">${{ item.total_price|floatformat:2 }}</td>
                                 <td class="py-3 px-4">
-                                    <form method="POST" action="{% url 'remove_from_cart' item.product.product_id %}" class="inline">
+                                    <form method="POST" action="{% url 'remove_from_cart' item.product.product_id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                                             Remove
                                         </button>
                                     </form>
