@@ -6,7 +6,7 @@
 <!-- Page Heading -->
 <h1 class="text-2xl font-bold mb-4">Product List</h1>
 
-<!-- Search Form: Allows users to search by product name and filter by category and price -->
+<!-- Search Form -->
 <form method="GET" action="{% url 'product_list' %}" class="mb-4">
     <!-- Search Input -->
     <label for="search" class="block text-lg mb-2">Search by Product Name:</label>
@@ -24,7 +24,7 @@
     <select 
         id="category" 
         name="category" 
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
     >
         <option value="">All Categories</option>
         {% for category in categories %}
@@ -33,23 +33,35 @@
             </option>
         {% endfor %}
     </select>
-
-    <!-- Sort by Price Dropdown -->
-    <label for="sort" class="block text-lg mb-2 mt-4">Sort by Price:</label>
-    <select 
-        id="sort" 
-        name="sort" 
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-    >
-        <option value="no_price" {% if sort_by == 'no_price' %}selected{% endif %}>No Price</option>
-        <option value="lowest_price" {% if sort_by == 'lowest_price' %}selected{% endif %}>Lowest Price</option>
-        <option value="highest_price" {% if sort_by == 'highest_price' %}selected{% endif %}>Highest Price</option>
-    </select>
     
     <!-- Submit Button for the Search Form -->
     <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         Search
     </button>
+</form>
+
+<!-- Sort Form -->
+<form method="GET" action="{% url 'product_list' %}" class="mb-4">
+    <!-- Preserve search and category filters -->
+    <input type="hidden" name="q" value="{{ query }}">
+    <input type="hidden" name="category" value="{{ selected_category }}">
+
+    <!-- Sort by Price Dropdown -->
+    <label for="sort" class="block text-lg mb-2">Sort by Price:</label>
+    <div class="flex items-center">
+        <select 
+            id="sort" 
+            name="sort" 
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
+        >
+            <option value="no_price" {% if sort_by == 'no_price' %}selected{% endif %}>No Price</option>
+            <option value="lowest_price" {% if sort_by == 'lowest_price' %}selected{% endif %}>Lowest Price</option>
+            <option value="highest_price" {% if sort_by == 'highest_price' %}selected{% endif %}>Highest Price</option>
+        </select>
+        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Filter
+        </button>
+    </div>
 </form>
 
 <!-- Success Messages Display -->
