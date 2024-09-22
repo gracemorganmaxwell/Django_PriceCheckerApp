@@ -245,30 +245,37 @@ class CartView(LoginRequiredMixin, View):
 
     
 def add_to_cart(request, product_id):
+    # Get the product or return a 404 if not found
     product = get_object_or_404(Product, product_id=product_id)
     
-    # Get the current cart from session or initialize an empty cart
+    # Get or create a CartItem for the user and product
     cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
+    
+    # Get the current cart from the session or initialize an empty cart
     cart = request.session.get('cart', {})
 
     # Convert product_id to a string since session keys are stored as strings
     product_id_str = str(product_id)
 
     if product_id_str in cart:
+        # If the product is already in the cart, increment its quantity
         cart[product_id_str]['quantity'] += 1
-        messages.info(request, f'{product.product_name} quantity updated in your cart.')
     else:
+        # If it's a new product, add it to the cart
         cart[product_id_str] = {
             'name': product.product_name,
             'price': str(product.unit_price),  # Store price as string to prevent JSON issues
             'quantity': 1
         }
-        messages.success(request, f'{product.product_name} has been added to your cart.')
+    
+    # Add a success message to be displayed to the user
+    messages.success(request, f'{product.product_name} has been added to your cart.')
 
     # Update the session cart
     request.session['cart'] = cart
-    return redirect('product_list')  # Redirect to cart page
-
+    
+    # Redirect to the product list page
+    return redirect('product_list')
 
 
 def remove_from_cart(request, item_id):

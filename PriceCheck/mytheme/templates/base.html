@@ -44,15 +44,19 @@
             </div>
         </div>
     </nav>
+
     {% if messages %}
-    <div class="fixed top-0 right-0 m-4">
+    <div id="message-container" class="fixed top-0 right-0 m-4 z-50">
         {% for message in messages %}
-            <div class="bg-green-500 text-white font-bold rounded-lg px-4 py-2 mb-2">
-                {{ message }}
+            <div class="bg-white text-[#3c82f6] border border-[#3c82f6] font-bold rounded-lg px-4 py-2 mb-2 flex justify-between items-center">
+                <span>{{ message }}</span>
+                <button class="close-message ml-4 bg-red-600 text-black border border-black rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 transition-colors duration-300">
+                    <span>&times;</span>
+                </button>
             </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
     <!-- Main Content Area -->
     <main class="flex-grow container mx-auto p-6">
@@ -81,5 +85,32 @@
             &copy; 2024 Supermarket Price Comparison
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                const messages = messageContainer.querySelectorAll('div');
+                
+                messages.forEach(message => {
+                    const closeBtn = message.querySelector('.close-message');
+                    closeBtn.addEventListener('click', () => {
+                        message.remove();
+                        if (messageContainer.children.length === 0) {
+                            messageContainer.remove();
+                        }
+                    });
+
+                    // Auto-close after 10 seconds
+                    setTimeout(() => {
+                        message.remove();
+                        if (messageContainer.children.length === 0) {
+                            messageContainer.remove();
+                        }
+                    }, 10000);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
