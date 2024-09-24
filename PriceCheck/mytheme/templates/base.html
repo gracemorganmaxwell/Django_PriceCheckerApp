@@ -9,36 +9,45 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        #sticky-nav {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
     <!-- Navigation Bar -->
-    <nav class="bg-blue-600 shadow-lg">
+    <nav id="sticky-nav" class="bg-blue-600 shadow-lg transition-all duration-300">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
+            <div class="flex justify-between items-center h-16">
                 <div class="text-white text-3xl font-bold">
                     <a href="{% url 'home' %}" class="hover:text-gray-200 transition duration-300">
                         PriceCheck
                     </a>
                 </div>
-                <ul class="flex space-x-8 text-white text-lg font-medium">
-                    <li><a href="{% url 'home' %}" class="hover:text-gray-200 transition duration-300">Home</a></li>
-                    <li><a href="{% url 'store_preference' %}" class="hover:text-gray-200 transition duration-300">Store Preferences</a></li>
-                    <li><a href="{% url 'product_list' %}" class="hover:text-gray-200 transition duration-300">Products</a></li>
-                    <li>
-                        <a href="{% url 'cart' %}" class="hover:text-gray-200 transition duration-300 flex items-center">
-                            <i class="fas fa-shopping-cart text-xl"></i>
-                            <span class="ml-2">Cart</span>
-                        </a>
-                    </li>
-                </ul>
-                <div class="flex space-x-6 text-white text-lg">
+                <div class="flex-grow flex justify-center items-center">
+                    <ul class="flex items-center space-x-6 text-white text-lg font-medium">
+                        <li><a href="{% url 'store_preference' %}" class="hover:text-gray-200 transition duration-300 px-3 py-2 rounded-md flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>Store Preferences</a></li>
+                        <li><a href="{% url 'product_list' %}" class="hover:text-gray-200 transition duration-300 px-3 py-2 rounded-md flex items-center"><i class="fa-solid fa-apple-whole mr-2"></i>Products</a></li>
+                        <li>
+                            <a href="{% url 'cart' %}" class="hover:text-gray-200 transition duration-300 px-3 py-2 rounded-md flex items-center">
+                                <i class="fas fa-receipt mr-2"></i>
+                                Shopping List 
+                                {% if cart_count %}
+                                    <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs ml-2">{{ cart_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="text-white text-lg">
                     {% if user.is_authenticated %}
                         <form method="POST" action="{% url 'logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="hover:text-gray-200 transition duration-300">Log Out</button>
+                            <button type="submit" class="hover:text-gray-200 transition duration-300 px-3 py-2 rounded-md">Log Out</button>
                         </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="hover:text-gray-200 transition duration-300">Log In</a>
+                        <a href="{% url 'login' %}" class="hover:text-gray-200 transition duration-300 px-3 py-2 rounded-md">Log In</a>
                     {% endif %}
                 </div>
             </div>
@@ -92,31 +101,36 @@
     {% endif %}
 
     <!-- Main Content Area -->
-    <main class="flex-grow container mx-auto p-6">
+    <main class="flex-grow container mx-auto p-6 overflow-x-hidden">
         {% block content %}
         <!-- Page-specific content will go here -->
         {% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white p-6">
-        <div class="container mx-auto flex justify-between items-center max-w-4xl">
-            <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
-                <i class="fas fa-home text-2xl mb-1"></i>
-                <span>Home</span>
-            </a>
-            <a href="{% url 'product_list' %}" class="hover:text-gray-300 flex flex-col items-center">
-                <i class="fas fa-search text-2xl mb-1"></i>
-                <span>Product Search</span>
-            </a>
-            <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
-                <i class="fas fa-heart text-2xl mb-1"></i>
-                <span>Favorites</span>
-            </a>
-        </div>
-        <div class="text-center mt-4 space-y-2">
-            <a href="{% url 'privacy_policy' %}" target="_blank" class="hover:text-gray-300" aria-label="View Privacy Policy">Privacy Policy</a>
-            <div>&copy; 2024 Supermarket Price Comparison</div>
+    <footer class="bg-gray-800 text-white p-6 w-full">
+        <div class="container mx-auto flex flex-col items-center justify-center max-w-4xl">
+            <div class="flex justify-center items-center space-x-16 mb-8">
+                <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
+                    <i class="fas fa-home text-2xl mb-1"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{% url 'product_list' %}" class="hover:text-gray-300 flex flex-col items-center">
+                    <i class="fas fa-search text-2xl mb-1"></i>
+                    <span>Product Search</span>
+                </a>
+                <a href="{% url 'home' %}" class="hover:text-gray-300 flex flex-col items-center">
+                    <i class="fas fa-heart text-2xl mb-1"></i>
+                    <span>Favorites</span>
+                </a>
+                <a href="{% url 'privacy_policy' %}" target="_blank" class="hover:text-gray-300 flex flex-col items-center" aria-label="View Privacy Policy">
+                    <i class="fa-solid fa-circle-info text-2xl mb-1"></i>
+                    <span>Privacy Policy</span>
+                </a>
+            </div>
+            <div class="text-center mt-8">
+                <div>&copy; 2024 Supermarket Price Comparison</div>
+            </div>
         </div>
     </footer>
 
@@ -144,6 +158,25 @@
                     }, 10000);
                 });
             }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nav = document.getElementById('sticky-nav');
+            const navTop = nav.offsetTop;
+
+            function stickyNav() {
+                if (window.scrollY > navTop) {
+                    nav.classList.add('fixed', 'top-0', 'left-0', 'right-0', 'z-50');
+                    document.body.style.paddingTop = nav.offsetHeight + 'px';
+                } else {
+                    nav.classList.remove('fixed', 'top-0', 'left-0', 'right-0', 'z-50');
+                    document.body.style.paddingTop = '0';
+                }
+            }
+
+            window.addEventListener('scroll', stickyNav);
         });
     </script>
 </body>
