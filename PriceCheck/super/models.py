@@ -148,7 +148,10 @@ class CartItem(models.Model):
 
     @property
     def total_price(self):
-        return self.quantity * self.product.unit_price  # Change 'price' to 'unit_price'
+        return self.quantity * self.product.price
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} for {self.user.username}"
     
 # def remove_from_cart(request, product_id):
 #     # Retrieve the cart from the session

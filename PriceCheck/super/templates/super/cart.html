@@ -1,36 +1,75 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1 class="text-3xl font-bold mb-6 text-center">Shopping List</h1>
-<div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+{% extends 'base.html' %} {% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center">Shopping Cart</h1>
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
   {% if cart_items %}
-  <form method="POST" action="{% url 'update_cart' %}" id="cartForm">
+  <form method="POST" action="{% url 'update_cart' %}">
     {% csrf_token %}
-    <div id="groupedItems" class="space-y-8">
-      <!-- JavaScript will populate this area -->
-    </div>
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="border-b">
+          <th class="py-3 px-4 text-left">Product ID</th>
+          <th class="py-3 px-4 text-left">Product</th>
+          <th class="py-3 px-4 text-left">Price</th>
+          <th class="py-3 px-4 text-left">Quantity</th>
+          <th class="py-3 px-4 text-left">Total</th>
+          <th class="py-3 px-4 text-left">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr class="border-b">
+          <td class="py-3 px-4">{{ item.product.product_id }}</td>
+          <td class="py-3 px-4">{{ item.product.product_name }}</td>
+          <td class="py-3 px-4">
+            ${{ item.product.unit_price|floatformat:2 }}
+          </td>
+          <td class="py-3 px-4">
+            <input
+              type="number"
+              name="quantity_{{ item.product.product_id }}"
+              value="{{ item.quantity }}"
+              min="1"
+              class="w-16 px-2 py-1 border rounded"
+            />
+          </td>
+          <td class="py-3 px-4">${{ item.total_price|floatformat:2 }}</td>
+          <td class="py-3 px-4">
+            <form
+              method="POST"
+              action="{% url 'remove_from_cart' item.product.product_id %}"
+            >
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Remove
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     <div class="mt-6 text-right">
       <h2 class="text-xl font-semibold">
-        Total: $<span id="totalAmount">{{ total_amount|floatformat:2 }}</span>
+        Total: ${{ total_amount|floatformat:2 }}
       </h2>
     </div>
-    <div class="mt-6 flex justify-end space-x-4">
+    <div class="mt-6 flex justify-end">
       <button
         type="submit"
         class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
       >
-        Update List
+        Update Cart
       </button>
-      <a
-        href="{% url 'export_list' %}"
-        class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
-      >
-        Export List
-      </a>
     </div>
   </form>
+
   {% else %}
-  <p class="text-center text-gray-700">Your shopping list is empty.</p>
+  <p class="text-center text-gray-700">Your cart is empty.</p>
   {% endif %}
+  <!-- Back to Product List Button -->
   <a
     href="{% url 'product_list' %}"
     class="inline-block mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -38,121 +77,4 @@
     Back to Product List
   </a>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const cartItems = [
-      {% for item in cart_items %}
-        {
-          id: {{ item.product.product_id }},
-          name: "{{ item.product.product_name }}",
-          price: {{ item.product.unit_price }},  // Change 'price' to 'unit_price'
-          quantity: {{ item.quantity }},
-          total: {{ item.total_price }},
-          store: "{{ item.product.store.store_name }}",
-          category: "{{ item.product.product_category }}"
-        },
-      {% endfor %}
-    ];
-
-    const groupedItems = groupItemsByStoreAndCategory(cartItems);
-    renderGroupedItems(groupedItems);
-    setupEventListeners();
-  });
-
-  function groupItemsByStoreAndCategory(items) {
-    return items.reduce((acc, item) => {
-      if (!acc[item.store]) acc[item.store] = {};
-      if (!acc[item.store][item.category]) acc[item.store][item.category] = [];
-      acc[item.store][item.category].push(item);
-      return acc;
-    }, {});
-  }
-
-  function renderGroupedItems(groupedItems) {
-    const container = document.getElementById('groupedItems');
-    container.innerHTML = '';
-
-    for (const [store, categories] of Object.entries(groupedItems)) {
-      const storeDiv = document.createElement('div');
-      storeDiv.className = 'mb-8';
-      storeDiv.innerHTML = `<h2 class="text-2xl font-bold mb-4">${store}</h2>`;
-
-      for (const [category, items] of Object.entries(categories)) {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'mb-4';
-        categoryDiv.innerHTML = `
-          <h3 class="text-xl font-semibold mb-2">${category}</h3>
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="py-2 px-4 text-left">Product</th>
-                <th class="py-2 px-4 text-left">Price</th>
-                <th class="py-2 px-4 text-left">Quantity</th>
-                <th class="py-2 px-4 text-left">Total</th>
-                <th class="py-2 px-4 text-left">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items.map(item => `
-                <tr class="border-b">
-                  <td class="py-2 px-4">${item.name}</td>
-                  <td class="py-2 px-4">$${item.price.toFixed(2)}</td>
-                  <td class="py-2 px-4">
-                    <input
-                      type="number"
-                      name="quantity_${item.id}"
-                      value="${item.quantity}"
-                      min="1"
-                      class="w-16 px-2 py-1 border rounded"
-                      onchange="updateTotal()"
-                    />
-                  </td>
-                  <td class="py-2 px-4">$${item.total.toFixed(2)}</td>
-                  <td class="py-2 px-4">
-                    <button
-                      type="button"
-                      onclick="removeItem(${item.id})"
-                      class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-        storeDiv.appendChild(categoryDiv);
-      }
-      container.appendChild(storeDiv);
-    }
-  }
-
-  function setupEventListeners() {
-    document.getElementById('cartForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      // Here you would typically send an AJAX request to update the cart
-      alert('Cart updated!');
-    });
-  }
-
-  function updateTotal() {
-    // Recalculate total based on current quantities
-    let total = 0;
-    document.querySelectorAll('input[type="number"]').forEach(input => {
-      const row = input.closest('tr');
-      const price = parseFloat(row.cells[1].textContent.replace('$', ''));
-      total += price * input.value;
-    });
-    document.getElementById('totalAmount').textContent = total.toFixed(2);
-  }
-
-  function removeItem(itemId) {
-    // Here you would typically send an AJAX request to remove the item
-    const row = document.querySelector(`input[name="quantity_${itemId}"]`).closest('tr');
-    row.remove();
-    updateTotal();
-  }
-</script>
 {% endblock %}

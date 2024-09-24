@@ -16,7 +16,6 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from urllib.parse import urlparse, urlunparse
 from datetime import datetime
-import csv
 
 #Homepage View
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -167,8 +166,6 @@ def product_list_view(request):
     elif sort_by == 'highest_price':
         product_data = sorted(product_data, key=lambda x: x['latest_price'], reverse=True)
     
-    
-    
 
     
 
@@ -235,28 +232,84 @@ def product_detail(request, product_id):
     })
 
 
-class CartView(LoginRequiredMixin, TemplateView):
-    template_name = 'super/cart.html'
-    login_url = '/login/'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        cart_items = CartItem.objects.filter(user=self.request.user).select_related('product')
-        context['cart_items'] = cart_items
-        context['total_amount'] = sum(item.product.unit_price * item.quantity for item in cart_items)
-        return context
-
+class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        
-        if 'csv_export' in request.session:
-            csv_content = request.session.pop('csv_export')
-            response = HttpResponse(csv_content, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="shopping_list.csv"'
-            return response
-        
-        return self.render_to_response(context)
+        cart = request.session.get('cart', {})
+        cart_items = []
+        total_amount = 0
 
+        products = []
+
+        for product_id, details in cart.items():
+            product = get_object_or_404(Product, product_id=int(product_id))
+            quantity = details['quantity']
+            # price = details.get('price')
+            
+            # if price is not None:
+            #     try:
+            #         price = float(price)
+            #         total_price = price * quantity
+            #         total_amount += total_price
+            #     except ValueError:
+            #         # Handle invalid price format
+            #         price = 0
+            #         total_price = 0
+            # else:
+            #     # Handle case where price is None
+            #     price = 0
+            #     total_price = 0
+
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                # 'price': price,
+                # 'total_price': total_price
+            })
+            products.append(product)
+
+        # Prefetch or bulk-fetch price history
+        price_histories = PriceHistory.objects.filter(product__in=products).order_by('product', '-date')
+
+        # Create a dictionary to store the latest and previous prices
+        price_data = {}
+        for price_history in price_histories:
+            product_id = price_history.product_id
+            if product_id not in price_data:
+                price_data[product_id] = {'latest_price': price_history.price, 'previous_price': None}
+            elif price_data[product_id]['previous_price'] is None:
+                price_data[product_id]['previous_price'] = price_history.price
+        
+
+        # Calculate the price trend for each product and print out the trend
+        for cart_item in cart_items:
+            price = price_data[cart_item['product'].product_code]['latest_price']
+            total_price = 0
+
+            if price is not None:
+                try:
+                    total_price = price * int(quantity)
+                    total_amount += total_price
+                except ValueError:
+                    # Handle invalid price format
+                    price = 0
+                    total_price = 0
+            else:
+                # Handle case where price is None
+                price = 0
+                total_price = 0
+
+            cart_item['price'] = price
+            cart_item['total_price'] = total_price
+
+        
+
+        context = {
+            'cart_items': cart_items,
+            'total_amount': total_amount
+        }
+        return render(request, 'super/cart.html', context)
+
+    
 def add_to_cart(request, product_id):
     # Get the product or return a 404 if not found
     product = get_object_or_404(Product, product_id=product_id)
@@ -378,28 +431,3 @@ def get_cart_items(self):
 
 def privacy_policy_view(request):
     return render(request, 'super/privacy_policy.html')
-
-import csv
-
-def export_list(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="shopping_list.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['Store', 'Product', 'Quantity', 'Price'])
-
-    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
-    
-    for item in cart_items:
-        writer.writerow([
-            item.product.store.store_name if hasattr(item.product, 'store') else 'N/A',
-            item.product.product_name,
-            item.quantity,
-            item.product.unit_price
-        ])
-
-    # Store the CSV content in the session
-    request.session['csv_export'] = response.content.decode('utf-8')
-
-    # Redirect to the cart view
-    return redirect('cart')

@@ -31,5 +31,4 @@ urlpatterns = [
     path('product/<int:product_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('toggle_favorite/<int:product_id>/', views.toggle_favorite, name='toggle_favorite'),
     path('privacy-policy/', privacy_policy_view, name='privacy_policy'),
-    path('export-list/', views.export_list, name='export_list'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
